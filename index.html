@@ -281,6 +281,15 @@ body{display:flex;align-items:flex-end;justify-content:flex-end;padding:clamp(8p
     for(const key of allowed)if(Object.prototype.hasOwnProperty.call(data,key))state[key]=data[key];
     render();
   };
+  // SA-MP CEF server event: JSON data is sent every 200 ms by the gamemode.
+  if(window.cef&&typeof window.cef.on==='function'){
+    window.cef.on('speedometer_update',payload=>{
+      try{
+        const data=typeof payload==='string'?JSON.parse(payload):payload;
+        window.updateSpeedometer(data);
+      }catch(error){console.warn('Invalid speedometer_update payload',error);}
+    });
+  }
   // Optional desktop preview controls; disable with ?preview=0 in the URL.
   const preview=new URLSearchParams(location.search).get('preview')!=='0';
   if(preview)window.addEventListener('keydown',e=>{
