@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GTA SA-MP / MTA — Modern Performance HUD</title>
+<style>
+:root{
+  --red:#e5092f;--red2:#ff405b;--white:#f7f7f8;--muted:#92949b;
+  --glass:rgba(8,8,10,.92);--line:rgba(255,255,255,.14);
+  --size:min( min(76vw, 72vh), 390px );
+}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;color:var(--white);
+  font-family:Inter,'Segoe UI',Roboto,Arial,sans-serif;user-select:none;-webkit-user-select:none}
+body{display:flex;align-items:flex-end;justify-content:flex-end;padding:clamp(8px,2vw,24px);
+  padding-right:max(clamp(8px,2vw,24px),env(safe-area-inset-right));
+  padding-bottom:max(clamp(8px,2vw,24px),env(safe-area-inset-bottom))}
+#speedometerContainer{position:relative;width:var(--size);height:var(--size);flex:0 0 auto;max-width:100vw;max-height:100vh;
+  isolation:isolate;animation:enter .8s cubic-bezier(.2,.8,.2,1) both}
+#speedometerContainer:before{content:"";position:absolute;inset:8%;border-radius:50%;
+  background:radial-gradient(circle,rgba(229,9,47,.20),transparent 68%);filter:blur(18px);
+  z-index:-1;animation:ambient 3.8s ease-in-out infinite}
+.cluster-housing{position:absolute;inset:0;border-radius:50%;padding:3.2%;
+  background:radial-gradient(circle at 50% 28%,rgba(32,32,36,.98),rgba(5,5,7,.99) 70%);
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:0 18px 50px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.12),
+  inset 0 0 34px rgba(229,9,47,.08),0 0 0 5px rgba(255,255,255,.025);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:box-shadow .25s,border-color .25s}
+.cluster-housing:after{content:"";position:absolute;inset:2.2%;border-radius:50%;border:1px solid rgba(255,255,255,.10);
+  pointer-events:none}
+.cluster-housing.shift-halo{border-color:rgba(229,9,47,.9);
+  box-shadow:0 18px 50px rgba(0,0,0,.62),0 0 28px rgba(229,9,47,.45),inset 0 0 35px rgba(229,9,47,.20)}
+.dial{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
+.track{fill:none;stroke:rgba(255,255,255,.075);stroke-width:7}
+.track.inner{stroke:rgba(255,255,255,.055);stroke-width:3.5}
+.arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset .16s cubic-bezier(.2,.8,.2,1),stroke .2s;filter:url(#glow)}
+#speedArc{stroke:url(#speedGrad);stroke-width:8}
+#rpmArc{stroke:var(--red);stroke-width:3.5;opacity:.92}
+#healthArc,#fuelArc{stroke-width:5.5}
+ .needle-transition{transform-origin:175px 175px;transition:transform .14s cubic-bezier(.18,.75,.22,1);will-change:transform}
+#rpmNeedleGroup{opacity:.72}
+#rpmNeedleGroup line{stroke:#ff405b;stroke-width:1.5}
+
+.center-ui{position:absolute;inset:9%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  padding:9% 5% 10%;text-align:center;pointer-events:none;min-width:0}
+.topline{width:68%;display:flex;align-items:center;justify-content:space-between;flex:0 0 auto}
+.signal{font-size:clamp(10px,1.2vw,15px);color:rgba(255,255,255,.2);transition:color .15s,filter .15s}
+.signal.signal-active{color:var(--red2);filter:drop-shadow(0 0 8px var(--red));animation:blink .55s infinite}
+.gear{min-width:30px;padding:3px 9px;border-radius:8px;font:800 clamp(13px,1.7vw,19px) 'Arial Narrow',Arial,sans-serif;
+  letter-spacing:1px;color:#fff;background:linear-gradient(145deg,#ff405b,#8b001c);
+  border:1px solid rgba(255,255,255,.28);box-shadow:0 0 18px rgba(229,9,47,.32),inset 0 1px 0 #ffffff55}
+.readout{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;min-height:0;width:100%;flex:1;gap:clamp(3px,1vh,8px)}
+.speed{font:900 clamp(46px,7.4vw,76px)/.96 'Arial Narrow',Arial,sans-serif;letter-spacing:-2.5px;
+  color:#fff;text-shadow:0 3px 22px #000,0 0 18px #ffffff22;font-variant-numeric:tabular-nums;
+  transition:transform .12s,color .15s}
+.speed.bump{transform:scale(1.045)}
+.unit{margin-top:7px;font-size:clamp(9px,1.05vw,12px);font-weight:900;letter-spacing:.32em;color:var(--red2)}
+.readout:after{content:"";width:48px;height:2px;margin-top:9px;border-radius:2px;background:linear-gradient(90deg,transparent,#e5092f,transparent);opacity:.9}
+
+.rpm-pill{display:flex;gap:8px;align-items:center;margin-top:2px;padding:5px 11px;border-radius:30px;
+  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.11);box-shadow:inset 0 1px 5px #000}
+.rpm-label{font-size:8px;font-weight:900;letter-spacing:.16em;color:var(--red2)}
+.rpm-number{font:700 11px/1 monospace;color:#f8f8fa;font-variant-numeric:tabular-nums}
+.status-dock{display:flex;align-items:center;justify-content:center;gap:clamp(7px,1.2vw,13px);flex:0 0 auto;
+  padding:7px 12px;border-radius:30px;max-width:84%;
+  background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(8px)}
+.status-icon{width:clamp(13px,1.45vw,17px);height:clamp(13px,1.45vw,17px);display:grid;place-items:center;
+  color:rgba(255,255,255,.24);transition:color .2s,filter .2s,transform .2s}
+.status-icon svg,.wing-icon svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;
+  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.status-icon.on{color:#fff;filter:drop-shadow(0 0 5px #ffffff66);transform:translateY(-1px)}
+.status-icon.warn{color:#ff405b;filter:drop-shadow(0 0 7px #e5092f)}
+.status-icon svg{stroke-width:1.9}
+.wing-icon svg{stroke-width:2}
+.status-dock{box-shadow:0 8px 22px #0008,inset 0 1px 0 #ffffff12}
+.wing{box-shadow:0 8px 22px #0009,inset 0 1px 0 #ffffff10}
+.wing-value{font-variant-numeric:tabular-nums;text-shadow:0 0 10px #ffffff22}
+.wing:after{content:'';position:absolute;left:10px;right:10px;bottom:4px;height:2px;border-radius:2px;background:linear-gradient(90deg,#e5092f,#ff405b55);opacity:.8}
+.wing.right:after{background:linear-gradient(90deg,#ff405b55,#e5092f)}
+
+.status-icon.warn{color:var(--red2);filter:drop-shadow(0 0 7px var(--red));animation:blink .8s infinite}
+.rpm-needle{transform-origin:175px 175px;transition:transform .18s cubic-bezier(.18,.75,.22,1)}
+.wing-icon{width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;color:#ff405b;
+  padding:5px;border-radius:9px;background:linear-gradient(145deg,#2a0b12,#10090c);
+  border:1px solid rgba(255,64,91,.32);box-shadow:inset 0 1px 0 #ffffff12,0 0 12px #e5092f18}
+.wing.critical .wing-icon,.wing.critical .wing-value{color:var(--red2);filter:drop-shadow(0 0 6px var(--red))}
+.wing{position:absolute;bottom:6.5%;display:flex;align-items:center;gap:9px;padding:8px 10px;
+  border-radius:15px;background:linear-gradient(145deg,rgba(7,8,12,.98),rgba(25,27,33,.96));
+  border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 24px #000a,inset 0 1px 0 #ffffff12;
+  z-index:3;width:31%;max-width:31%;min-height:49px;white-space:nowrap;justify-content:flex-start}
+.wing.left{left:5%;flex-direction:row}.wing.right{right:5%;flex-direction:row}
+.wing-icon{font-size:10px;color:#dce2eb}.wing-value{font:800 clamp(10px,1.25vw,13px) monospace;color:#fff;letter-spacing:.02em}
+ .wing .wing-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;flex:1}
+.wing .wing-caption{font:900 8px/1 Arial,sans-serif;letter-spacing:.16em;color:#9699a3}
+.wing .wing-value{font:900 14px/1 monospace;color:#fff;letter-spacing:.02em}
+.wing.left .wing-label{align-items:flex-start}.wing.right .wing-label{align-items:flex-start}\n.wing.low .wing-icon,.wing.low .wing-value{color:var(--red2);filter:drop-shadow(0 0 5px var(--red))}
+.brand{position:absolute;top:25%;left:50%;transform:translateX(-50%);font-size:clamp(6px,.68vw,8px);
+  font-weight:900;letter-spacing:.22em;color:rgba(255,255,255,.25);white-space:nowrap;pointer-events:none}
+@keyframes enter{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes ambient{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
+@media (max-width:600px){
+  :root{--size:min(82vw, 62vh, 310px)}
+  body{padding:10px}
+  .wing{bottom:5%;padding:6px 7px;gap:6px;min-height:42px;width:34%;max-width:34%;border-radius:12px}
+  .wing.left{left:3%}.wing.right{right:3%}
+  .wing-icon{width:23px;height:23px;flex-basis:23px;padding:4px;border-radius:7px}
+  .wing .wing-caption{font-size:7px}.wing .wing-value{font-size:12px}
+  .center-ui{inset:10%;padding:7% 4% 9%}
+  .status-dock{gap:8px;padding:6px 9px;max-width:78%}
+}
+@media (orientation:landscape) and (max-height:500px){
+  :root{--size:min(68vh, 43vw, 285px)}
+  body{padding:8px}
+  .wing{bottom:5%;padding:5px 7px;min-height:38px}
+}
+@media (min-width:1000px) and (min-height:600px){
+  :root{--size:min( min(32vw, 68vh), 390px )}
+}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="speedometerContainer">
+  <div id="housingBezel" class="cluster-housing">
+    <svg class="dial" viewBox="0 0 350 350" aria-hidden="true">
+      <defs>
+        <linearGradient id="speedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff"/><stop offset="55%" stop-color="#ff405b"/><stop offset="100%" stop-color="#7d0018"/>
+        </linearGradient>
+        <linearGradient id="auxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#e5092f"/><stop offset="100%" stop-color="#fff"/>
+        </linearGradient>
+        <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+          <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <circle class="track" cx="175" cy="175" r="148" stroke-dasharray="929.9" stroke-dashoffset="360" stroke-linecap="round"/>
+      <circle class="track inner" cx="175" cy="175" r="132" stroke-dasharray="829.3" stroke-dashoffset="320" stroke-linecap="round"/>
+      <circle class="track" cx="175" cy="175" r="163" stroke-width="5" stroke-dasharray="1024.1" stroke-dashoffset="920" transform="rotate(130 175 175)"/>
+      <circle class="track" cx="175" cy="175" r="163" stroke-width="5" stroke-dasharray="1024.1" stroke-dashoffset="920" transform="rotate(230 175 175)"/>
+      <circle id="speedArc" class="arc" cx="175" cy="175" r="148" stroke-dasharray="929.9" stroke-dashoffset="929.9"/>
+      <circle id="rpmArc" class="arc" cx="175" cy="175" r="132" stroke-dasharray="829.3" stroke-dashoffset="829.3"/>
+      <circle id="healthArc" class="arc" cx="175" cy="175" r="163" stroke="url(#auxGrad)" stroke-dasharray="1024.1" stroke-dashoffset="1024.1" transform="rotate(130 175 175)"/>
+      <circle id="fuelArc" class="arc" cx="175" cy="175" r="163" stroke="url(#auxGrad)" stroke-dasharray="1024.1" stroke-dashoffset="1024.1" transform="rotate(230 175 175)"/>
+      <g opacity=".58">
+        <g id="ticks"></g>
+      </g>
+      <!-- RPM indicator needle: short secondary needle inside the main dial -->
+      <g id="rpmNeedleGroup" class="rpm-needle" style="transform:rotate(-125deg)">
+        <line x1="175" y1="175" x2="175" y2="57" stroke="#f7f8fb" stroke-width="2"
+              stroke-linecap="round" opacity=".88" filter="url(#glow)"/>
+        <circle cx="175" cy="175" r="3.5" fill="#ff405b" stroke="#fff" stroke-width="1"/>
+      </g>
+      <!-- Main speed needle -->
+      <g id="needleGroup" class="needle-transition" style="transform:rotate(-125deg)">
+        <!-- Main tapered speed needle -->
+        <path d="M171.8 181 L175 30 L178.2 181 Z" fill="#f7f7f8" filter="url(#glow)"/>
+        <path d="M174.2 174 L175 42 L175.8 174 Z" fill="#e5092f"/>
+        <!-- Layered center hub -->
+        <circle cx="175" cy="175" r="10.5" fill="#090909" stroke="#f7f7f8" stroke-width="1.6"/>
+        <circle cx="175" cy="175" r="6.5" fill="#e5092f" stroke="#ff405b" stroke-width="1.2"/>
+        <circle cx="175" cy="175" r="2" fill="#fff"/>
+      </g>
+    </svg>
+    <div class="center-ui">
+      <div class="topline">
+        <span id="signalLeft" class="signal">◀</span>
+        <span id="gearDisplay" class="gear">P</span>
+        <span id="signalRight" class="signal">▶</span>
+      </div>
+      <div class="readout">
+        <span id="speedValue" class="speed">0</span>
+        <span class="unit">KM / H</span>
+        <div class="rpm-pill"><span class="rpm-label">RPM</span><span id="rpmValue" class="rpm-number">800</span></div>
+      </div>
+      <div class="status-dock" aria-label="Vehicle status">
+        <span id="iconEngine" class="status-icon" title="Engine" aria-label="Engine">
+          <svg viewBox="0 0 24 24"><path d="M5 9h3l2-3h5l2 3h2a2 2 0 0 1 2 2v6h-3v2H8v-2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"/><path d="M10 6V4h4M3 12H1m22 0h-2"/></svg>
+        </span>
+        <span id="iconLights" class="status-icon" title="Headlights" aria-label="Headlights">
+          <svg viewBox="0 0 24 24"><path d="M12 4a7 7 0 0 0 0 14V4Z"/><path d="M16 7h5M17 12h5M16 17h5"/></svg>
+        </span>
+        <span id="iconSeatbelt" class="status-icon warn" title="Seatbelt" aria-label="Seatbelt">
+          <svg viewBox="0 0 24 24"><path d="m7 3 4 5-3 3-4-5M14 9l3-3 3 3-4 4"/><path d="m8 12 8 8M5 19l4-4m6-6 3-3"/></svg>
+        </span>
+        <span id="iconLock" class="status-icon" title="Door lock" aria-label="Door lock">
+          <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg>
+        </span>
+        <span id="iconHandbrake" class="status-icon warn" title="Handbrake" aria-label="Handbrake">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg>
+        </span>
+      </div>
+    </div>
+    <div class="brand">REDLINE // DRIVE SYSTEM</div>
+    <div id="healthBadge" class="wing left">
+      <span id="healthIcon" class="wing-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.2 8-8 10-4.8-2-8-5.3-8-10V6l8-3.2Z"/><path d="M12 7v9M7.5 11.5h9"/></svg></span>
+      <span class="wing-label"><span class="wing-caption">HEALTH</span><span id="healthText" class="wing-value">100%</span></span>
+    </div>
+    <div id="fuelBadge" class="wing right">
+      <span class="wing-label"><span class="wing-caption">FUEL</span><span id="fuelText" class="wing-value">85%</span></span>
+      <span id="fuelIcon" class="wing-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2v16M4 21h13M8 7h5v5H8z"/><path d="M16 8h2l2 3v6a2 2 0 0 1-4 0v-4"/></svg></span>
+    </div>
+  </div>
+</div>
+<script>
+(() => {
+  'use strict';
+  const state={speed:0,rpm:800,gear:'P',fuel:85,health:100,engine:false,lights:false,seatbelt:false,locked:false,handbrake:true,signalLeft:false,signalRight:false};
+  const MAX_SPEED=300,MAX_RPM=8000;
+  const C={speed:929.9,rpm:829.3,aux:1024.1};
+  const $=id=>document.getElementById(id);
+  const el={
+    housing:$('housingBezel'),speed:$('speedValue'),speedArc:$('speedArc'),rpm:$('rpmValue'),rpmArc:$('rpmArc'),
+    gear:$('gearDisplay'),needle:$('needleGroup'),fuelArc:$('fuelArc'),fuelText:$('fuelText'),
+    healthArc:$('healthArc'),healthText:$('healthText'),healthBadge:$('healthBadge'),fuelBadge:$('fuelBadge'),
+    engine:$('iconEngine'),lights:$('iconLights'),belt:$('iconSeatbelt'),lock:$('iconLock'),brake:$('iconHandbrake'),
+    left:$('signalLeft'),right:$('signalRight')
+  };
+  // Generate fine dial ticks without relying on external libraries.
+  const ticks=$('ticks');
+  // Scale numerals placed just inside the outer tick ring.
+  for(let i=0;i<=6;i++){
+    const value=i*50, a=(-125+i*(245/6))*Math.PI/180;
+    // Nudge the zero away from the lower corner for a balanced scale.
+    const r=i===0?119:128;
+    const x=175+Math.cos(a)*r, y=175+Math.sin(a)*r+(i===0?0:3);
+    const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+    label.setAttribute('x',x);label.setAttribute('y',y);
+    label.setAttribute('text-anchor','middle');label.setAttribute('dominant-baseline','middle');
+    // The dial is rotated -90deg; counter-rotate text so digits stay upright.
+    label.setAttribute('transform',`rotate(90 ${x} ${y})`);
+    label.setAttribute('fill',i===6?'#ff405b':'#f2f2f3');label.setAttribute('font-size','11');
+    label.setAttribute('font-family','Arial,sans-serif');label.setAttribute('font-weight','900');
+    label.setAttribute('paint-order','stroke');label.setAttribute('stroke','#080808');label.setAttribute('stroke-width','2.8');label.setAttribute('stroke-linejoin','round');
+    label.textContent=String(value);ticks.appendChild(label);
+  }
+  for(let i=0;i<=20;i++){
+    const a=(-125+i*12.25)*Math.PI/180,major=i%5===0;
+    const r1=major?137:140,r2=major?147:145;
+    const x1=175+Math.cos(a)*r1,y1=175+Math.sin(a)*r1,x2=175+Math.cos(a)*r2,y2=175+Math.sin(a)*r2;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);
+    line.setAttribute('stroke',major?(i>=15?'#e5092f':'#ffffff'):'#8b8b91');line.setAttribute('stroke-width',major?2.4:1.15);line.setAttribute('stroke-linecap','round');ticks.appendChild(line);
+  }
+  const clamp=(v,min,max)=>Math.min(Math.max(Number(v)||0,min),max);
+  const setStatus=(node,on,warn=false)=>{node.className='status-icon'+(warn?' warn':on?' on':'');};
+  function render(){
+    const speed=clamp(state.speed,0,MAX_SPEED),rpm=clamp(state.rpm,0,MAX_RPM);
+    const fuel=clamp(state.fuel,0,100),health=clamp(state.health,0,100);
+    el.speed.textContent=Math.round(speed);
+    el.speedArc.style.strokeDashoffset=C.speed-(speed/MAX_SPEED*570);
+    el.needle.style.transform=`rotate(${-125+(speed/MAX_SPEED*245)}deg)`;
+    el.rpm.textContent=Math.round(rpm);
+    el.rpmArc.style.strokeDashoffset=C.rpm-(rpm/MAX_RPM*510);
+    $('rpmNeedleGroup').style.transform=`rotate(${-125+(rpm/MAX_RPM*245)}deg)`;
+    el.housing.classList.toggle('shift-halo',rpm>=7000);
+    if(state.engine){
+      if(state.handbrake&&speed===0)state.gear='P';
+      else if(state.gear!=='R'&&state.gear!=='N')state.gear=speed<35?'1':speed<70?'2':speed<120?'3':speed<170?'4':speed<230?'5':'6';
+    }else state.gear='P';
+    el.gear.textContent=String(state.gear??'P').slice(0,3);
+    el.healthText.textContent=Math.round(health)+'%';
+    el.healthArc.style.strokeDashoffset=C.aux-(health/100*104);
+    el.healthBadge.classList.toggle('low',health<=30);
+    el.healthBadge.classList.toggle('critical',health<=30);
+    el.fuelText.textContent=Math.round(fuel)+'%';
+    el.fuelArc.style.strokeDashoffset=C.aux-(fuel/100*104);
+    el.fuelBadge.classList.toggle('low',fuel<=15);
+    setStatus(el.engine,state.engine);setStatus(el.lights,state.lights);
+    setStatus(el.belt,state.seatbelt,!state.seatbelt);setStatus(el.lock,state.locked);
+    setStatus(el.brake,state.handbrake,state.handbrake);
+    el.left.classList.toggle('signal-active',!!state.signalLeft);
+    el.right.classList.toggle('signal-active',!!state.signalRight);
+  }
+  // Public CEF bridge: keep the original updateSpeedometer(data) contract.
+  window.updateSpeedometer=function(data){
+    if(!data||typeof data!=='object')return;
+    const allowed=['speed','rpm','gear','fuel','health','engine','lights','seatbelt','locked','handbrake','signalLeft','signalRight'];
+    for(const key of allowed)if(Object.prototype.hasOwnProperty.call(data,key))state[key]=data[key];
+    render();
+  };
+  // Optional desktop preview controls; disable with ?preview=0 in the URL.
+  const preview=new URLSearchParams(location.search).get('preview')!=='0';
+  if(preview)window.addEventListener('keydown',e=>{
+    const k=e.key.toLowerCase();
+    if(k==='arrowup'){state.engine=true;state.handbrake=false;state.speed=clamp(state.speed+4,0,MAX_SPEED);state.rpm=clamp(1200+(state.speed%50)*150,0,MAX_RPM);}
+    else if(k==='arrowdown'){state.speed=clamp(state.speed-6,0,MAX_SPEED);state.rpm=clamp(state.rpm-200,800,MAX_RPM);}
+    else if(k==='e')state.engine=!state.engine;else if(k==='l')state.lights=!state.lights;
+    else if(k==='b')state.seatbelt=!state.seatbelt;else if(k==='k')state.locked=!state.locked;
+    else if(k==='h')state.handbrake=!state.handbrake;
+    else if(k==='arrowleft'){state.signalLeft=!state.signalLeft;state.signalRight=false;}
+    else if(k==='arrowright'){state.signalRight=!state.signalRight;state.signalLeft=false;}
+    else return;
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>
