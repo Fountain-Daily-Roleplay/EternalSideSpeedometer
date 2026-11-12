@@ -2355,11 +2355,12 @@
                 });
                 document.querySelectorAll('.spu-pos').forEach(button => {
                     button.classList.toggle('active', button.dataset.pos === cfg.position);
-                const sizeInput = speedo-size;
-                const sizeValue = speedo-size-value;
+                });
+                const sizeInput = $('speedo-size');
+                const sizeValue = $('speedo-size-value');
                 if (sizeInput) sizeInput.value = Math.round(cfg.scale * 100);
                 if (sizeValue) sizeValue.textContent = Math.round(cfg.scale * 100) + '%';
-                });
+
                 const dragButton = $('btn-speedo-drag');
                 if (dragButton) {
                     const dragging = layer.classList.contains('is-dragging');
@@ -2512,9 +2513,9 @@
                     try { data = JSON.parse(data); } catch (error) { return; }
                 }
                 if (!data || typeof data !== 'object') return;
-                if (typeof window.setSpeedoStyle === 'function' && ['twopod', 'onepod', 'off'].includes(data.style)) window.setSpeedoStyle(data.style);
-                if (typeof window.setSpeedoPosition === 'function' && typeof data.position === 'string') window.setSpeedoPosition(data.position);
-                if (typeof window.resetSpeedoOffset === 'function' && (data.dx !== undefined || data.dy !== undefined)) window.resetSpeedoOffset();
+                if (typeof window.applySpeedometerSettings === 'function') {
+                    window.applySpeedometerSettings(data);
+                }
             }
             if (window.cef && typeof window.cef.on === 'function') {
                 try { window.cef.on('speedometer_settings', applyRemoteSpeedometerSettings); } catch (error) { console.warn('[Speedometer] settings listener unavailable', error); }
