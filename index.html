@@ -1,311 +1,2786 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="h-full">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>GTA SA-MP / MTA — Modern Performance HUD</title>
-<style>
-:root{
-  --red:#e5092f;--red2:#ff405b;--white:#f7f7f8;--muted:#92949b;
-  --glass:rgba(8,8,10,.92);--line:rgba(255,255,255,.14);
-  --size:min( min(76vw, 72vh), 390px );
-}
-*{box-sizing:border-box}
-html,body{width:100%;height:100%;margin:0;overflow:hidden;background:transparent;color:var(--white);
-  font-family:Inter,'Segoe UI',Roboto,Arial,sans-serif;user-select:none;-webkit-user-select:none}
-body{display:flex;align-items:flex-end;justify-content:flex-end;padding:clamp(8px,2vw,24px);
-  padding-right:max(clamp(8px,2vw,24px),env(safe-area-inset-right));
-  padding-bottom:max(clamp(8px,2vw,24px),env(safe-area-inset-bottom))}
-#speedometerContainer{position:relative;width:var(--size);height:var(--size);flex:0 0 auto;max-width:100vw;max-height:100vh;
-  isolation:isolate;animation:enter .8s cubic-bezier(.2,.8,.2,1) both}
-#speedometerContainer:before{content:"";position:absolute;inset:8%;border-radius:50%;
-  background:radial-gradient(circle,rgba(229,9,47,.20),transparent 68%);filter:blur(18px);
-  z-index:-1;animation:ambient 3.8s ease-in-out infinite}
-.cluster-housing{position:absolute;inset:0;border-radius:50%;padding:3.2%;
-  background:radial-gradient(circle at 50% 28%,rgba(32,32,36,.98),rgba(5,5,7,.99) 70%);
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:0 18px 50px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.12),
-  inset 0 0 34px rgba(229,9,47,.08),0 0 0 5px rgba(255,255,255,.025);
-  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);transition:box-shadow .25s,border-color .25s}
-.cluster-housing:after{content:"";position:absolute;inset:2.2%;border-radius:50%;border:1px solid rgba(255,255,255,.10);
-  pointer-events:none}
-.cluster-housing.shift-halo{border-color:rgba(229,9,47,.9);
-  box-shadow:0 18px 50px rgba(0,0,0,.62),0 0 28px rgba(229,9,47,.45),inset 0 0 35px rgba(229,9,47,.20)}
-.dial{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.track{fill:none;stroke:rgba(255,255,255,.075);stroke-width:7}
-.track.inner{stroke:rgba(255,255,255,.055);stroke-width:3.5}
-.arc{fill:none;stroke-linecap:round;transition:stroke-dashoffset .16s cubic-bezier(.2,.8,.2,1),stroke .2s;filter:url(#glow)}
-#speedArc{stroke:url(#speedGrad);stroke-width:8}
-#rpmArc{stroke:var(--red);stroke-width:3.5;opacity:.92}
-#healthArc,#fuelArc{stroke-width:5.5}
- .needle-transition{transform-origin:175px 175px;transition:transform .14s cubic-bezier(.18,.75,.22,1);will-change:transform}
-#rpmNeedleGroup{opacity:.72}
-#rpmNeedleGroup line{stroke:#ff405b;stroke-width:1.5}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#08090c">
+    <title>GTA SA-MP | Modern Radial Menu (Merah Putih Edition)</title>
 
-.center-ui{position:absolute;inset:9%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
-  padding:9% 5% 10%;text-align:center;pointer-events:none;min-width:0}
-.topline{width:68%;display:flex;align-items:center;justify-content:space-between;flex:0 0 auto}
-.signal{font-size:clamp(10px,1.2vw,15px);color:rgba(255,255,255,.2);transition:color .15s,filter .15s}
-.signal.signal-active{color:var(--red2);filter:drop-shadow(0 0 8px var(--red));animation:blink .55s infinite}
-.gear{min-width:30px;padding:3px 9px;border-radius:8px;font:800 clamp(13px,1.7vw,19px) 'Arial Narrow',Arial,sans-serif;
-  letter-spacing:1px;color:#fff;background:linear-gradient(145deg,#ff405b,#8b001c);
-  border:1px solid rgba(255,255,255,.28);box-shadow:0 0 18px rgba(229,9,47,.32),inset 0 1px 0 #ffffff55}
-.readout{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;min-height:0;width:100%;flex:1;gap:clamp(3px,1vh,8px)}
-.speed{font:900 clamp(46px,7.4vw,76px)/.96 'Arial Narrow',Arial,sans-serif;letter-spacing:-2.5px;
-  color:#fff;text-shadow:0 3px 22px #000,0 0 18px #ffffff22;font-variant-numeric:tabular-nums;
-  transition:transform .12s,color .15s}
-.speed.bump{transform:scale(1.045)}
-.unit{margin-top:7px;font-size:clamp(9px,1.05vw,12px);font-weight:900;letter-spacing:.32em;color:var(--red2)}
-.readout:after{content:"";width:48px;height:2px;margin-top:9px;border-radius:2px;background:linear-gradient(90deg,transparent,#e5092f,transparent);opacity:.9}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700;800&family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-.rpm-pill{display:flex;gap:8px;align-items:center;margin-top:2px;padding:5px 11px;border-radius:30px;
-  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.11);box-shadow:inset 0 1px 5px #000}
-.rpm-label{font-size:8px;font-weight:900;letter-spacing:.16em;color:var(--red2)}
-.rpm-number{font:700 11px/1 monospace;color:#f8f8fa;font-variant-numeric:tabular-nums}
-.status-dock{display:flex;align-items:center;justify-content:center;gap:clamp(7px,1.2vw,13px);flex:0 0 auto;
-  padding:7px 12px;border-radius:30px;max-width:84%;
-  background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.11);backdrop-filter:blur(8px)}
-.status-icon{width:clamp(13px,1.45vw,17px);height:clamp(13px,1.45vw,17px);display:grid;place-items:center;
-  color:rgba(255,255,255,.24);transition:color .2s,filter .2s,transform .2s}
-.status-icon svg,.wing-icon svg{width:100%;height:100%;display:block;fill:none;stroke:currentColor;
-  stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.status-icon.on{color:#fff;filter:drop-shadow(0 0 5px #ffffff66);transform:translateY(-1px)}
-.status-icon.warn{color:#ff405b;filter:drop-shadow(0 0 7px #e5092f)}
-.status-icon svg{stroke-width:1.9}
-.wing-icon svg{stroke-width:2}
-.status-dock{box-shadow:0 8px 22px #0008,inset 0 1px 0 #ffffff12}
-.wing{box-shadow:0 8px 22px #0009,inset 0 1px 0 #ffffff10}
-.wing-value{font-variant-numeric:tabular-nums;text-shadow:0 0 10px #ffffff22}
-.wing:after{content:'';position:absolute;left:10px;right:10px;bottom:4px;height:2px;border-radius:2px;background:linear-gradient(90deg,#e5092f,#ff405b55);opacity:.8}
-.wing.right:after{background:linear-gradient(90deg,#ff405b55,#e5092f)}
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            red: '#DC2626',
+                            redBright: '#EF4444',
+                            redDark: '#991B1B',
+                            white: '#FFFFFF',
+                            silver: '#E2E8F0',
+                            black: '#08090C',
+                            panel: '#111318'
+                        }
+                    },
+                    fontFamily: {
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
 
-.status-icon.warn{color:var(--red2);filter:drop-shadow(0 0 7px var(--red));animation:blink .8s infinite}
-.rpm-needle{transform-origin:175px 175px;transition:transform .18s cubic-bezier(.18,.75,.22,1)}
-.wing-icon{width:27px;height:27px;flex:0 0 27px;display:grid;place-items:center;color:#ff405b;
-  padding:5px;border-radius:9px;background:linear-gradient(145deg,#2a0b12,#10090c);
-  border:1px solid rgba(255,64,91,.32);box-shadow:inset 0 1px 0 #ffffff12,0 0 12px #e5092f18}
-.wing.critical .wing-icon,.wing.critical .wing-value{color:var(--red2);filter:drop-shadow(0 0 6px var(--red))}
-.wing{position:absolute;bottom:6.5%;display:flex;align-items:center;gap:9px;padding:8px 10px;
-  border-radius:15px;background:linear-gradient(145deg,rgba(7,8,12,.98),rgba(25,27,33,.96));
-  border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 24px #000a,inset 0 1px 0 #ffffff12;
-  z-index:3;width:31%;max-width:31%;min-height:49px;white-space:nowrap;justify-content:flex-start}
-.wing.left{left:5%;flex-direction:row}.wing.right{right:5%;flex-direction:row}
-.wing-icon{font-size:10px;color:#dce2eb}.wing-value{font:800 clamp(10px,1.25vw,13px) monospace;color:#fff;letter-spacing:.02em}
- .wing .wing-label{display:flex;flex-direction:column;align-items:flex-start;gap:4px;min-width:0;flex:1}
-.wing .wing-caption{font:900 8px/1 Arial,sans-serif;letter-spacing:.16em;color:#9699a3}
-.wing .wing-value{font:900 14px/1 monospace;color:#fff;letter-spacing:.02em}
-.wing.left .wing-label{align-items:flex-start}.wing.right .wing-label{align-items:flex-start}\n.wing.low .wing-icon,.wing.low .wing-value{color:var(--red2);filter:drop-shadow(0 0 5px var(--red))}
-.brand{position:absolute;top:25%;left:50%;transform:translateX(-50%);font-size:clamp(6px,.68vw,8px);
-  font-weight:900;letter-spacing:.22em;color:rgba(255,255,255,.25);white-space:nowrap;pointer-events:none}
-@keyframes enter{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes ambient{0%,100%{opacity:.55;transform:scale(.94)}50%{opacity:1;transform:scale(1.08)}}
-@keyframes blink{0%,100%{opacity:.35}50%{opacity:1}}
-@media (max-width:600px){
-  :root{--size:min(82vw, 62vh, 310px)}
-  body{padding:10px}
-  .wing{bottom:5%;padding:6px 7px;gap:6px;min-height:42px;width:34%;max-width:34%;border-radius:12px}
-  .wing.left{left:3%}.wing.right{right:3%}
-  .wing-icon{width:23px;height:23px;flex-basis:23px;padding:4px;border-radius:7px}
-  .wing .wing-caption{font-size:7px}.wing .wing-value{font-size:12px}
-  .center-ui{inset:10%;padding:7% 4% 9%}
-  .status-dock{gap:8px;padding:6px 9px;max-width:78%}
-}
-@media (orientation:landscape) and (max-height:500px){
-  :root{--size:min(68vh, 43vw, 285px)}
-  body{padding:8px}
-  .wing{bottom:5%;padding:5px 7px;min-height:38px}
-}
-@media (min-width:1000px) and (min-height:600px){
-  :root{--size:min( min(32vw, 68vh), 390px )}
-}
-@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style>
+    <style>
+        :root {
+            color-scheme: dark;
+            --black: #08090c;
+            --panel: #111318;
+            --panel-soft: rgba(16, 18, 24, .95);
+            --red: #dc2626;
+            --red-bright: #ef4444;
+            --red-glow: rgba(239, 68, 68, .42);
+            --white: #ffffff;
+            --silver: #f1f5f9;
+            --muted: rgba(255, 255, 255, .6);
+            --line: rgba(255, 255, 255, .18);
+        }
+
+        :root { --menu-scale: 0.9; }
+        * { box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; margin: 0; }
+        body {
+            overflow: hidden;
+            background-color: #08090c;
+            color: var(--white);
+            font-family: Inter, sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body.cef-transparent {
+            background: transparent !important;
+        }
+
+        body.radial-menu-closed main,
+        body.radial-menu-closed .hud-overlay,
+        body.radial-menu-closed .hud-grid,
+        body.radial-menu-closed #inline-settings-panel {
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        button, [role="button"], .slice-group,
+        button *, [role="button"] *, .slice-group * {
+            -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+            -webkit-user-drag: none;
+        }
+        button {
+            font: inherit;
+            -webkit-appearance: none !important;
+            appearance: none !important;
+            outline: none;
+        }
+        button:focus, button:focus-visible,
+        [role="button"]:focus, [role="button"]:focus-visible,
+        .slice-group:focus, .slice-group:focus-visible {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        html.keyboard-navigation button:focus-visible,
+        html.keyboard-navigation [role="button"]:focus-visible,
+        html.keyboard-navigation .slice-group:focus-visible {
+            outline: 2px solid var(--red-bright) !important;
+            outline-offset: 4px;
+        }
+        ::selection { background: transparent; color: inherit; }
+
+        .hud-overlay {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at center, rgba(220, 38, 38, .15) 0%, rgba(255, 255, 255, .04) 26%, rgba(8, 9, 12, .65) 55%, rgba(0, 0, 0, .92) 100%);
+        }
+        .hud-grid {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, .07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(239, 68, 68, .1) 1px, transparent 1px);
+            background-size: 36px 36px;
+            -webkit-mask-image: radial-gradient(circle at center, black 0%, transparent 74%);
+            mask-image: radial-gradient(circle at center, black 0%, transparent 74%);
+        }
+        main {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 14px;
+        }
+
+        /* Animasi untuk wadah layout (tidak dipakai pada item yang butuh translate posisi) */
+        .menu-enter { animation: menuEnter .24s cubic-bezier(.16, 1, .3, 1) both; }
+        @keyframes menuEnter {
+            from { opacity: 0; transform: scale(.95); filter: blur(3px); }
+            to { opacity: 1; transform: scale(1); filter: blur(0); }
+        }
+        .soft-pulse { animation: softPulse 3s ease-in-out infinite; }
+        @keyframes softPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 2px rgba(255, 255, 255, .75), 0 0 0 5px rgba(220, 38, 38, .28), 0 12px 32px rgba(0, 0, 0, .75);
+            }
+            50% {
+                box-shadow: 0 0 0 2px #ffffff, 0 0 26px rgba(239, 68, 68, .55), 0 12px 32px rgba(0, 0, 0, .85);
+            }
+        }
+        .glow-chrome { filter: drop-shadow(0 14px 28px rgba(0, 0, 0, .72)); }
+
+        /* ==================== 1. CIRCLE LAYOUT ==================== */
+        #layout-circle {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: min(70vmin, 430px);
+            aspect-ratio: 1 / 1;
+            flex: 0 0 auto;
+        }
+        .circle-outer-ring {
+            position: absolute;
+            inset: 0.5%;
+            border: 1.5px solid rgba(239, 68, 68, .42);
+            border-radius: 50%;
+            box-shadow: 0 0 38px rgba(220, 38, 38, .18), inset 0 0 24px rgba(255, 255, 255, .05);
+            pointer-events: none;
+        }
+        .circle-outer-ring::before {
+            content: '';
+            position: absolute;
+            inset: 7px;
+            border: 1px dashed rgba(255, 255, 255, .24);
+            border-radius: 50%;
+        }
+        .circle-outer-ring::after {
+            content: '';
+            position: absolute;
+            inset: -7px;
+            border: 1px solid rgba(255, 255, 255, .12);
+            border-radius: 50%;
+        }
+        #circle-menu-svg { width: 100%; height: 100%; overflow: visible; }
+        .slice-path {
+            fill: rgba(15, 17, 23, .95);
+            stroke: rgba(255, 255, 255, .24);
+            stroke-width: 1.5;
+            transition: fill .18s ease, stroke .18s ease, filter .18s ease;
+            cursor: pointer;
+        }
+        .slice-group:hover .slice-path,
+        .slice-group:focus-visible .slice-path {
+            fill: url(#merahPutihGradient);
+            stroke: #ffffff;
+            stroke-width: 2;
+            filter: drop-shadow(0 0 16px rgba(239, 68, 68, .55));
+        }
+        .slice-group:active .slice-path { fill: #b91c1c; }
+        .slice-fo { pointer-events: none; }
+        .slice-content {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            color: #ffffff;
+            text-align: center;
+            transition: color .18s ease, transform .18s ease;
+        }
+        .slice-content i {
+            font-size: clamp(16px, 2.7vw, 22px);
+            color: #ef4444;
+            filter: drop-shadow(0 2px 6px rgba(239, 68, 68, .35));
+            transition: color .18s ease, transform .18s ease, filter .18s ease;
+        }
+        .slice-group:hover .slice-content,
+        .slice-group:focus-visible .slice-content {
+            color: #ffffff;
+            transform: scale(1.06);
+        }
+        .slice-group:hover .slice-content i,
+        .slice-group:focus-visible .slice-content i {
+            color: #ffffff;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, .4));
+        }
+        .slice-content span {
+            max-width: 100%;
+            font-family: Rajdhani, sans-serif;
+            font-size: clamp(10px, 1.55vw, 13px);
+            font-weight: 800;
+            letter-spacing: .09em;
+            line-height: 1;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* Center Hub Merah Putih */
+        .center-hub {
+            position: absolute;
+            z-index: 30;
+            display: flex;
+            width: clamp(88px, 28%, 142px);
+            aspect-ratio: 1 / 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 50% 0%, rgba(220, 38, 38, .42) 0%, transparent 58%),
+                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, .14) 0%, transparent 55%),
+                linear-gradient(160deg, #1b1e28 0%, #090a0e 78%);
+            color: #fff;
+            cursor: pointer;
+            transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+        .center-hub:hover {
+            transform: scale(1.05);
+            border-color: #ffffff;
+            box-shadow: 0 0 0 5px rgba(239, 68, 68, .28), 0 0 34px rgba(239, 68, 68, .48);
+        }
+        .hub-logo-wrap {
+            display: flex;
+            width: 68%;
+            aspect-ratio: 1 / 1;
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            overflow: visible;
+        }
+        .center-hub-logo {
+            display: block;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, .75));
+            pointer-events: none;
+        }
+        .hub-logo-wrap i { font-size: clamp(22px, 4vw, 29px); color: #ffffff; }
+        .hub-title {
+            font-family: Rajdhani, sans-serif;
+            font-size: clamp(10px, 1.8vw, 14px);
+            font-weight: 800;
+            letter-spacing: .12em;
+            line-height: 1;
+            color: #ffffff;
+        }
+        .hub-hint {
+            padding: 3px 9px;
+            border: 1px solid rgba(255, 255, 255, .55);
+            border-radius: 999px;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #ffffff;
+            font: 800 7.5px/1.1 Inter, sans-serif;
+            letter-spacing: .1em;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, .45);
+        }
+
+        /* ==================== 2. HEXAGON LAYOUT ==================== */
+        #layout-hexagon {
+            position: relative;
+            display: flex;
+            width: min(72vmin, 440px);
+            aspect-ratio: 1 / 1;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
+            /* Radius & ukuran node dikendalikan satu variabel agar selalu simetris */
+            --hex-radius: 35.2%;
+            --hex-node: 19.5%;
+        }
+        #layout-hexagon.hex-count-5,
+        #layout-hexagon.hex-count-6 { --hex-node: 22.5%; }
+        #layout-hexagon.hex-count-4 { --hex-node: 25%; }
+        #hex-connector-svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: visible;
+        }
+        #hex-nodes-container {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+        }
+        .hex-node {
+            position: absolute;
+            z-index: 3;
+            display: flex;
+            width: var(--hex-node);
+            aspect-ratio: 1 / 1;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
+            border: 0;
+            background: linear-gradient(150deg, #ef4444 0%, #ffffff 52%, rgba(255, 255, 255, .25) 100%);
+            clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+            color: #fff;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+            filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .65));
+            transition: transform .18s ease, filter .18s ease, background .18s ease;
+            animation: hexNodeEnter .26s cubic-bezier(.16, 1, .3, 1);
+        }
+        @keyframes hexNodeEnter {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(.82); }
+            to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .hex-node:hover, .hex-node:focus-visible {
+            transform: translate(-50%, -50%) scale(1.08);
+            background: linear-gradient(150deg, #ffffff 0%, #ef4444 100%);
+            filter: drop-shadow(0 10px 24px rgba(0, 0, 0, .7)) drop-shadow(0 0 16px rgba(239, 68, 68, .55));
+        }
+        .hex-node:active { transform: translate(-50%, -50%) scale(.97); }
+        .hex-node-inner {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(3px, 0.8vmin, 5px);
+            padding: 4px;
+            overflow: hidden;
+            clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+            background: linear-gradient(160deg, #191c25, #0a0b10);
+            color: #fff;
+            transition: background .18s ease, color .18s ease;
+        }
+        .hex-node:hover .hex-node-inner, .hex-node:focus-visible .hex-node-inner {
+            background: linear-gradient(155deg, #dc2626 0%, #991b1b 100%);
+            color: #ffffff;
+        }
+        .hex-node-inner i {
+            display: flex;
+            width: clamp(20px, 4.4vmin, 30px);
+            height: clamp(20px, 4.4vmin, 30px);
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(239, 68, 68, .35);
+            border-radius: clamp(6px, 1.2vmin, 9px);
+            background: rgba(239, 68, 68, .12);
+            color: #ef4444;
+            font-size: clamp(11px, 2.2vmin, 16px);
+            transition: color .18s ease, background .18s ease, border-color .18s ease;
+        }
+        .hex-node:hover .hex-node-inner i, .hex-node:focus-visible .hex-node-inner i {
+            border-color: rgba(255, 255, 255, .45);
+            background: #ffffff;
+            color: #dc2626;
+        }
+        .hex-node-inner span {
+            max-width: 100%;
+            color: inherit;
+            font: 800 clamp(8px, 1.55vmin, 11.5px)/1 Rajdhani, sans-serif;
+            letter-spacing: .04em;
+            text-align: center;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* Center Hub berbentuk Heksagon agar serasi dengan node sekitarnya */
+        .hex-center-hub {
+            width: 27%;
+            aspect-ratio: 1 / 1;
+            border: 0;
+            border-radius: 0;
+            padding: 2.5px;
+            background: linear-gradient(150deg, #ffffff 0%, #ef4444 50%, #ffffff 100%);
+            clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+            filter: drop-shadow(0 0 22px rgba(239, 68, 68, .45));
+        }
+        .hex-center-hub-inner {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 8px;
+            clip-path: polygon(50% 0%, 93.3% 25%, 93.3% 75%, 50% 100%, 6.7% 75%, 6.7% 25%);
+            background:
+                radial-gradient(circle at 50% 0%, rgba(220, 38, 38, .48) 0%, transparent 60%),
+                linear-gradient(160deg, #1b1e28 0%, #090a0e 82%);
+        }
+        .hex-center-hub .hub-logo-wrap { width: 54%; }
+
+        /* ==================== 3. FLOATING DOCK LAYOUT ==================== */
+        #layout-arc {
+            display: flex;
+            width: 100%;
+            max-width: 980px;
+            max-height: 94vh;
+            min-width: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(12px, 2.2vmin, 20px);
+            padding-inline: 4px;
+        }
+        /* Dock = flex row; kartu dinaikkan dengan --lift (kurva parabola), bukan posisi absolut */
+        #arc-items-container {
+            position: relative;
+            display: flex;
+            width: 100%;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            align-items: flex-end;
+            justify-content: center;
+            gap: clamp(6px, 1.1vw, 14px);
+            height: auto;
+        }
+        #arc-items-container:not(.is-compact) {
+            padding-top: calc(var(--dock-lift, 0px) + 10px);
+        }
+        .arc-item {
+            position: relative;
+            z-index: 3;
+            display: flex;
+            width: clamp(66px, 8.6vw, 104px);
+            min-width: 0;
+            height: clamp(78px, 9.9vw, 112px);
+            flex: 0 1 auto;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: clamp(5px, 1vmin, 8px);
+            padding: 8px 4px;
+            border: 1px solid rgba(255, 255, 255, .2);
+            border-top: 2px solid rgba(239, 68, 68, .75);
+            border-radius: clamp(14px, 2vmin, 18px);
+            background: linear-gradient(160deg, rgba(24, 27, 36, .96), rgba(10, 11, 16, .98));
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .14);
+            color: #fff;
+            cursor: pointer;
+            transform: translateY(calc(var(--lift, 0px) * -1));
+            transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease, color .18s ease;
+            animation: dockItemEnter .26s cubic-bezier(.16, 1, .3, 1);
+        }
+        @keyframes dockItemEnter {
+            from { opacity: 0; transform: translateY(calc(var(--lift, 0px) * -1)) scale(.88); }
+            to   { opacity: 1; transform: translateY(calc(var(--lift, 0px) * -1)) scale(1); }
+        }
+        /* Saat window di-resize jangan ulangi animasi masuk */
+        body.is-resizing #layout-circle,
+        body.is-resizing #layout-hexagon,
+        body.is-resizing #layout-arc,
+        body.is-resizing .hex-node,
+        body.is-resizing .arc-item,
+        body.is-resizing .slice-group { animation: none !important; }
+        .arc-item:hover, .arc-item:focus-visible {
+            z-index: 5;
+            transform: translateY(calc(var(--lift, 0px) * -1 - 8px)) scale(1.06);
+            border-color: #ffffff;
+            background: linear-gradient(155deg, #dc2626 0%, #991b1b 100%);
+            color: #ffffff;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, .6), 0 0 24px rgba(239, 68, 68, .5);
+        }
+        .arc-icon {
+            display: flex;
+            width: clamp(32px, 4.4vmin, 40px);
+            height: clamp(32px, 4.4vmin, 40px);
+            flex: 0 0 auto;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(239, 68, 68, .35);
+            border-radius: clamp(9px, 1.6vmin, 12px);
+            background: rgba(239, 68, 68, .12);
+            color: #ef4444;
+            font-size: clamp(15px, 2.4vmin, 18px);
+            transition: all .18s ease;
+        }
+        .arc-item:hover .arc-icon, .arc-item:focus-visible .arc-icon {
+            border-color: #ffffff;
+            background: #ffffff;
+            color: #dc2626;
+        }
+        .arc-item-label {
+            max-width: 100%;
+            font: 800 clamp(10px, 1.9vmin, 12px)/1 Rajdhani, sans-serif;
+            letter-spacing: .07em;
+            text-align: center;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Grid simetris rata tengah saat layar compact */
+        #arc-items-container.is-compact {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            width: min(100%, 560px);
+            margin-inline: auto;
+            height: auto;
+            min-height: 0;
+            padding-top: 0 !important;
+            gap: clamp(8px, 1.8vmin, 12px);
+        }
+        #arc-items-container.is-compact .arc-item {
+            flex: 0 0 calc(25% - 9px);
+            width: calc(25% - 9px);
+            height: clamp(70px, 17vmin, 96px);
+            min-width: 0;
+            padding: 7px 4px;
+            border-radius: 15px;
+            transform: none;
+        }
+        #arc-items-container.is-compact.cols-3 .arc-item {
+            flex: 0 0 calc(33.333% - 8px);
+            width: calc(33.333% - 8px);
+        }
+        #arc-items-container.is-compact .arc-item:hover,
+        #arc-items-container.is-compact .arc-item:focus-visible { transform: translateY(-2px) scale(1.03); }
+        #arc-items-container.is-compact .arc-icon {
+            width: clamp(26px, 6.4vmin, 34px);
+            height: clamp(26px, 6.4vmin, 34px);
+            font-size: clamp(13px, 3.2vmin, 16px);
+            border-radius: 10px;
+        }
+        #arc-items-container.is-compact .arc-item-label { font-size: clamp(9px, 1.6vmin, 12px); }
+
+        .arc-close-button {
+            position: relative;
+            z-index: 6;
+            display: flex;
+            flex: 0 0 auto;
+            min-height: 52px;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 8px 24px;
+            border: 1.5px solid rgba(255, 255, 255, .65);
+            border-left: 4px solid #dc2626;
+            border-radius: 16px;
+            background: linear-gradient(145deg, rgba(24, 27, 36, .98), rgba(10, 11, 16, .98));
+            color: #fff;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .15);
+            cursor: pointer;
+            transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+        }
+        .arc-close-button:hover {
+            transform: translateY(-2px);
+            border-color: #ffffff;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, .65), 0 0 22px rgba(239, 68, 68, .38);
+        }
+        .arc-close-button .hub-logo-wrap { width: 42px; height: 42px; flex: 0 0 42px; }
+        .arc-close-button .center-hub-logo { width: 100%; height: 100%; }
+        .arc-close-button .hub-logo-wrap i { font-size: 20px; color: #ef4444; }
+        .arc-close-button .hub-title { font-size: 14px; letter-spacing: .1em; color: #ffffff; }
+        .arc-close-button .hub-hint {
+            display: inline-block;
+            margin-top: 4px;
+            border: 0;
+            background: transparent;
+            color: #fca5a5;
+            padding: 0;
+            text-align: left;
+            box-shadow: none;
+        }
+
+        /* ==================== SPEEDOMETER HUD LAYER ==================== */
+        #speedo-layer {
+            position: fixed;
+            inset: 0;
+            z-index: 20;
+            display: flex;
+            pointer-events: none;
+            padding: max(12px, env(safe-area-inset-top)) max(14px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+            transition: opacity .18s ease, visibility .18s ease;
+        }
+        #speedo-layer.sp-off { display: none !important; }
+        /* Saat menu radial terbuka, HUD disembunyikan agar tidak menutupi menu */
+        body:not(.radial-menu-closed) #speedo-layer {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        #speedo-layer[data-pos="top-left"]     { align-items: flex-start; justify-content: flex-start; }
+        #speedo-layer[data-pos="top-center"]   { align-items: flex-start; justify-content: center; }
+        #speedo-layer[data-pos="top-right"]    { align-items: flex-start; justify-content: flex-end; }
+        #speedo-layer[data-pos="middle-left"]  { align-items: center;     justify-content: flex-start; }
+        #speedo-layer[data-pos="middle-center"]{ align-items: center;     justify-content: center; }
+        #speedo-layer[data-pos="middle-right"] { align-items: center;     justify-content: flex-end; }
+        #speedo-layer[data-pos="bottom-left"]  { align-items: flex-end;   justify-content: flex-start; }
+        #speedo-layer[data-pos="bottom-center"]{ align-items: flex-end;   justify-content: center; }
+        #speedo-layer[data-pos="bottom-right"] { align-items: flex-end;   justify-content: flex-end; }
+
+        .speedo-variant {
+            display: none;
+            position: relative;
+            flex: 0 0 auto;
+            transform: translate(var(--sp-dx, 0px), var(--sp-dy, 0px)) scale(var(--sp-scale, 1));
+            transform-origin: center center;
+            will-change: transform;
+            touch-action: none;
+        }
+        .speedo-resize-handle {
+            position: absolute;
+            right: -14px;
+            bottom: -14px;
+            z-index: 30;
+            display: none;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: linear-gradient(140deg, #ef4444, #991b1b);
+            color: #fff;
+            font-size: 13px;
+            /* ukuran pegangan tetap sama walaupun HUD diperbesar/diperkecil */
+            transform: scale(calc(1 / var(--sp-scale, 1)));
+            transform-origin: bottom right;
+            box-shadow: 0 0 16px rgba(239, 68, 68, .65);
+            cursor: nwse-resize;
+            pointer-events: none;
+            touch-action: none;
+        }
+        #speedo-layer.is-dragging .speedo-resize-handle {
+            display: grid;
+            pointer-events: auto;
+        }
+        .speedo-variant.is-active { display: block; }
+        /* Mode geser: HUD tetap tampil walau menu terbuka agar bisa diatur posisinya */
+        #speedo-layer.is-dragging {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        #speedo-layer.is-dragging .speedo-variant {
+            pointer-events: auto;
+            touch-action: none;
+            cursor: grab;
+
+            outline: 2px dashed rgba(239, 68, 68, .8);
+            outline-offset: 10px;
+            border-radius: 20px;
+        }
+        #speedo-layer.is-dragging .speedo-variant:active { cursor: grabbing; }
+        /* Saat menggeser, efek berat dimatikan sementara agar gerakan mulus di HP */
+        #speedo-layer.is-dragging .cluster-shell,
+        #speedo-layer.is-dragging .cluster-housing {
+            filter: none !important;
+        }
+        #speedo-layer.is-dragging .twopod .arc,
+        #speedo-layer.is-dragging .twopod .needle,
+        #speedo-layer.is-dragging .twopod .shift-bar,
+        #speedo-layer.is-dragging .twopod .wing,
+        #speedo-layer.is-dragging .onepod .arc,
+        #speedo-layer.is-dragging .onepod .status-dock {
+            filter: none !important;
+        }
+        #speedo-layer.is-dragging .speedo-variant,
+        #speedo-layer.is-dragging .speedo-variant * {
+            transition: none !important;
+        }
+
+        @keyframes spEnter {
+            from { opacity: 0; transform: translateY(10px) scale(.96); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes spBlink { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
+
+        /* ---------- Variant A : Two-Pod ---------- */
+        .twopod {
+            --w: clamp(300px, 28vw, 430px);
+            --red: #e5092f;
+            --red2: #ff405b;
+            --muted: #8f96a3;
+            width: var(--w);
+            aspect-ratio: 480 / 262;
+            isolation: isolate;
+            animation: spEnter .4s cubic-bezier(.2, .8, .2, 1) both;
+        }
+        .twopod .cluster-shell {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 14px 26px rgba(0, 0, 0, .85));
+            transition: filter .22s ease;
+        }
+        .twopod .cluster-shell.shift-halo {
+            filter: drop-shadow(0 14px 26px rgba(0, 0, 0, .85)) drop-shadow(0 0 18px rgba(229, 9, 47, .55));
+        }
+        .twopod .dial { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+        .twopod .arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset .13s cubic-bezier(.2, .8, .2, 1); }
+        .twopod .tick { stroke-linecap: round; }
+        .twopod .scale-num { font-family: 'Arial Narrow', Arial, sans-serif; font-weight: 800; font-size: 10px; fill: #c8ccd4; text-anchor: middle; }
+        .twopod .scale-num.red { fill: var(--red2); }
+        .twopod .needle { transform-box: view-box; will-change: transform; }
+        .twopod #tp-needleSpeed { transform-origin: 128px 126px; transition: transform .15s cubic-bezier(.18, .75, .22, 1); }
+        .twopod #tp-needleRpm { transform-origin: 352px 126px; transition: transform .12s cubic-bezier(.18, .75, .22, 1); }
+        .twopod .signal { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; transition: stroke .15s; }
+        .twopod .signal.signal-active { stroke: var(--red2); filter: drop-shadow(0 0 5px var(--red)); animation: spBlink .5s infinite; }
+        .twopod .readout-value { font-family: 'Arial Narrow', Impact, Arial, sans-serif; font-weight: 900; fill: #fff; text-anchor: middle; font-variant-numeric: tabular-nums; }
+        .twopod #tp-speedValue { font-size: 42px; letter-spacing: -1.3px; paint-order: stroke; stroke: #04050a; stroke-width: 4.5; stroke-linejoin: round; stroke-linecap: round; }
+        .twopod .readout-unit { font-family: Inter, 'Segoe UI', Arial, sans-serif; font-weight: 800; font-size: 9.5px; letter-spacing: .42em; fill: var(--red2); text-anchor: middle; }
+        .twopod #tp-gearValue { font-size: 27px; letter-spacing: -.5px; fill: #fff; paint-order: stroke; stroke: rgba(120, 0, 22, .55); stroke-width: 1.6; stroke-linejoin: round; }
+        .twopod #tp-rpmValueBox { font-family: 'Arial Narrow', Arial, sans-serif; font-weight: 700; font-size: 10.5px; letter-spacing: .08em; fill: var(--muted); text-anchor: middle; font-variant-numeric: tabular-nums; }
+        .twopod #tp-rpmValue { fill: #fff; font-weight: 800; }
+        .twopod .shift-bar {
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: calc(var(--w) * .008);
+            padding: calc(var(--w) * .009) calc(var(--w) * .016);
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(12, 13, 18, .98), rgba(4, 5, 8, .98));
+            border: 1px solid rgba(255, 255, 255, .14);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .75), inset 0 1px 0 rgba(255, 255, 255, .07);
+            z-index: 6;
+        }
+        .twopod .shift-led {
+            width: calc(var(--w) * .0155);
+            height: calc(var(--w) * .0095);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .11);
+            transition: background .08s, box-shadow .08s;
+        }
+        .twopod .shift-led.on.w { background: #fff; box-shadow: 0 0 6px rgba(255, 255, 255, .9); }
+        .twopod .shift-led.on.r { background: var(--red2); box-shadow: 0 0 8px var(--red); }
+        .twopod .bottom-deck {
+            position: absolute;
+            left: 2.5%; right: 2.5%; bottom: 0;
+            height: calc(var(--w) * .068);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: calc(var(--w) * .02);
+            padding: 0 calc(var(--w) * .028);
+            border-radius: calc(var(--w) * .026);
+            background: linear-gradient(180deg, rgba(13, 14, 20, .97), rgba(4, 5, 9, .99));
+            border: 1px solid rgba(255, 255, 255, .13);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, .07), 0 4px 14px rgba(0, 0, 0, .6);
+            z-index: 5;
+        }
+        .twopod .bottom-deck::before {
+            content: '';
+            position: absolute;
+            left: calc(var(--w) * .035); right: calc(var(--w) * .035);
+            top: -1px;
+            height: 1.5px;
+            background: linear-gradient(90deg, transparent, rgba(229, 9, 47, .85), transparent);
+            border-radius: 2px;
+        }
+        .twopod .wing {
+            display: flex;
+            align-items: center;
+            gap: calc(var(--w) * .012);
+            min-width: calc(var(--w) * .185);
+            padding: calc(var(--w) * .006) calc(var(--w) * .012);
+            border-radius: calc(var(--w) * .016);
+            background: rgba(255, 255, 255, .035);
+            border: 1px solid rgba(255, 255, 255, .09);
+            transition: border-color .2s, background .2s;
+        }
+        .twopod .wing-icon { width: calc(var(--w) * .026); height: calc(var(--w) * .026); color: var(--red2); flex: 0 0 auto; display: grid; place-items: center; }
+        .twopod .wing-icon svg { width: 100%; height: 100%; display: block; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+        .twopod .wing-body { display: flex; flex-direction: column; gap: calc(var(--w) * .005); flex: 1 1 auto; min-width: 0; }
+        .twopod .wing-value { font-family: 'Arial Narrow', Arial, sans-serif; font-weight: 800; font-size: calc(var(--w) * .021); line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
+        .twopod .bar { display: block; width: 100%; height: calc(var(--w) * .0075); border-radius: 999px; background: rgba(255, 255, 255, .12); overflow: hidden; }
+        .twopod .bar i { display: block; height: 100%; width: 0%; border-radius: 999px; background: linear-gradient(90deg, var(--red2), #ffffff); transition: width .25s cubic-bezier(.2, .8, .2, 1); }
+        .twopod .wing.right { flex-direction: row-reverse; text-align: right; }
+        .twopod .wing.right .wing-body { align-items: flex-end; }
+        .twopod .wing.low { border-color: rgba(229, 9, 47, .6); background: rgba(229, 9, 47, .10); }
+        .twopod .wing.low .wing-icon, .twopod .wing.low .wing-value { color: var(--red2); filter: drop-shadow(0 0 5px rgba(229, 9, 47, .8)); }
+        .twopod .status-dock {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: calc(var(--w) * .017);
+            padding: calc(var(--w) * .007) calc(var(--w) * .018);
+            border-radius: calc(var(--w) * .02);
+            background: rgba(255, 255, 255, .035);
+            border: 1px solid rgba(255, 255, 255, .09);
+        }
+        .twopod .status-icon { width: calc(var(--w) * .026); height: calc(var(--w) * .026); display: grid; place-items: center; color: rgba(255, 255, 255, .20); transition: color .2s, filter .2s; }
+        .twopod .status-icon svg { width: 100%; height: 100%; display: block; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+        .twopod .status-icon.on { color: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .5)); }
+        .twopod .status-icon.warn { color: var(--red2); filter: drop-shadow(0 0 6px var(--red)); animation: spBlink .85s infinite; }
+
+        /* ---------- Variant B : One-Pod ---------- */
+        .onepod {
+            --size: clamp(150px, 14vw, 180px);
+            --red: #e5092f;
+            --red2: #ff405b;
+            --muted: #9aa0ab;
+            position: relative;
+            width: var(--size);
+            height: var(--size);
+            isolation: isolate;
+            animation: spEnter .4s cubic-bezier(.2, .8, .2, 1) both;
+        }
+        .onepod .cluster-housing {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: radial-gradient(circle at 50% 25%, rgba(22, 23, 28, .96), rgba(6, 6, 9, .98) 76%);
+            border: 1px solid rgba(255, 255, 255, .15);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .68), inset 0 1px 0 rgba(255, 255, 255, .12);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: box-shadow .2s, border-color .2s;
+        }
+        .onepod .cluster-housing.shift-halo {
+            border-color: rgba(229, 9, 47, .9);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .68), 0 0 18px rgba(229, 9, 47, .5), inset 0 0 14px rgba(229, 9, 47, .25);
+        }
+        .onepod .dial { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+        .onepod .track { fill: none; stroke: rgba(255, 255, 255, .08); stroke-width: 9; stroke-linecap: round; }
+        .onepod .track.inner { stroke: rgba(255, 255, 255, .05); stroke-width: 4; }
+        .onepod .arc { fill: none; stroke-linecap: round; transition: stroke-dashoffset .14s cubic-bezier(.2, .8, .2, 1); filter: url(#opGlow); }
+        .onepod #op-speedArc { stroke: url(#opSpeedGrad); stroke-width: 9; }
+        .onepod #op-rpmArc { stroke: var(--red2); stroke-width: 4; opacity: .92; }
+        .onepod #op-healthArc, .onepod #op-fuelArc { stroke-width: 5; }
+        .onepod .needle-transition { transform-origin: 175px 175px; transition: transform .14s cubic-bezier(.18, .75, .22, 1); will-change: transform; }
+        .onepod .center-ui {
+            position: absolute;
+            inset: 12%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4% 2% 6%;
+            text-align: center;
+            pointer-events: none;
+        }
+        .onepod .topline { width: 62%; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 2; }
+        .onepod .signal { font-size: 8px; color: rgba(255, 255, 255, .18); transition: color .15s, filter .15s; }
+        .onepod .signal.signal-active { color: var(--red2); filter: drop-shadow(0 0 5px var(--red)); animation: spBlink .55s infinite; }
+        .onepod .gear {
+            min-width: 18px;
+            padding: 1.5px 6px;
+            border-radius: 5px;
+            font: 800 9.5px/1.1 'Arial Narrow', Arial, sans-serif;
+            letter-spacing: .4px;
+            color: #fff;
+            background: linear-gradient(145deg, #ff405b, #9e001f);
+            border: 1px solid rgba(255, 255, 255, .24);
+            box-shadow: 0 2px 8px rgba(229, 9, 47, .38);
+        }
+        .onepod .readout {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+            margin-bottom: 4px;
+            padding: 3px 10px 4px;
+            border-radius: 10px;
+            background: radial-gradient(ellipse at center, rgba(8, 9, 13, .88) 45%, transparent 100%);
+        }
+        .onepod .speed { font: 900 clamp(23px, 2.3vw, 29px)/.92 'Arial Narrow', Arial, sans-serif; letter-spacing: -.8px; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .95); font-variant-numeric: tabular-nums; }
+        .onepod .unit { font-size: 6.5px; font-weight: 800; letter-spacing: .24em; color: var(--red2); margin-top: 2px; }
+        .onepod .rpm-mini { margin-top: 2px; font: 700 7px/1 monospace; color: var(--muted); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+        .onepod .rpm-mini b { color: #eef0f5; font-weight: 700; }
+        .onepod .status-dock {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 3px 7px;
+            border-radius: 16px;
+            background: rgba(0, 0, 0, .55);
+            border: 1px solid rgba(255, 255, 255, .1);
+        }
+        .onepod .status-icon { width: 9.5px; height: 9.5px; display: grid; place-items: center; color: rgba(255, 255, 255, .22); transition: color .2s, filter .2s; }
+        .onepod .status-icon svg, .onepod .wing-icon svg { width: 100%; height: 100%; display: block; fill: none; stroke: currentColor; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+        .onepod .status-icon.on { color: #fff; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .5)); }
+        .onepod .status-icon.warn { color: var(--red2); filter: drop-shadow(0 0 5px var(--red)); animation: spBlink .8s infinite; }
+        .onepod .wing {
+            position: absolute;
+            bottom: 2%;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 6px;
+            border-radius: 8px;
+            background: rgba(10, 11, 15, .95);
+            border: 1px solid rgba(255, 255, 255, .13);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, .7);
+            z-index: 3;
+        }
+        .onepod .wing.left { left: 2%; }
+        .onepod .wing.right { right: 2%; }
+        .onepod .wing-icon { width: 10px; height: 10px; color: var(--red2); flex: 0 0 auto; }
+        .onepod .wing-value { font: 800 8px/1 monospace; color: #fff; font-variant-numeric: tabular-nums; }
+        .onepod .wing.low .wing-icon, .onepod .wing.low .wing-value { color: var(--red2); filter: drop-shadow(0 0 4px var(--red)); }
+
+        /* ---------- Kontrol speedometer di Settings ---------- */
+        .spu-chip {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            padding: 11px 6px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 13px;
+            background: rgba(255, 255, 255, .03);
+            color: #fff;
+            font: 800 12px/1 Rajdhani, sans-serif;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .spu-chip i { color: #ef4444; font-size: 13px; }
+        .spu-chip:hover { border-color: rgba(239, 68, 68, .65); transform: translateY(-1px); }
+        .spu-chip.active {
+            border-color: #ef4444;
+            background: linear-gradient(90deg, rgba(220, 38, 38, .28), rgba(255, 255, 255, .07));
+            box-shadow: inset 0 0 16px rgba(220, 38, 38, .18);
+        }
+        .spu-chip.active i { color: #fff; }
+        .spu-pos-grid { display: grid; grid-template-columns: repeat(3, 46px); justify-content: center; gap: 8px; }
+        .spu-pos {
+            display: grid;
+            width: 46px;
+            height: 46px;
+            place-items: center;
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 11px;
+            background: rgba(255, 255, 255, .03);
+            color: rgba(255, 255, 255, .4);
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .spu-pos::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+        .spu-pos:hover { border-color: rgba(239, 68, 68, .6); color: #fff; }
+        .spu-pos.active { border-color: #ef4444; background: rgba(220, 38, 38, .22); color: #fff; box-shadow: 0 0 14px rgba(239, 68, 68, .35); }
+
+        /* ---------- Skala ukuran menu (diatur dari Settings) ---------- */
+        #layout-circle,
+        #layout-hexagon {
+            zoom: var(--menu-scale, 0.9);
+        }
+        #arc-items-container:not(.is-compact) .arc-item {
+            width: calc(clamp(66px, 8.6vw, 104px) * var(--menu-scale, 0.9));
+            height: calc(clamp(78px, 9.9vw, 112px) * var(--menu-scale, 0.9));
+        }
+        #arc-items-container:not(.is-compact) .arc-icon {
+            width: calc(clamp(32px, 4.4vmin, 40px) * var(--menu-scale, 0.9));
+            height: calc(clamp(32px, 4.4vmin, 40px) * var(--menu-scale, 0.9));
+            font-size: calc(clamp(15px, 2.4vmin, 18px) * var(--menu-scale, 0.9));
+        }
+        #arc-items-container:not(.is-compact) .arc-item-label {
+            font-size: calc(clamp(10px, 1.9vmin, 12px) * var(--menu-scale, 0.9));
+        }
+        #arc-items-container.is-compact .arc-item,
+        #layout-arc .arc-close-button {
+            zoom: var(--menu-scale, 0.9);
+        }
+        .menu-size-range {
+            width: 100%;
+            height: 24px;
+            margin: 0;
+            accent-color: #dc2626;
+            background: transparent;
+            cursor: pointer;
+        }
+        .menu-size-range::-webkit-slider-runnable-track {
+            height: 6px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #dc2626, #ef4444, rgba(255, 255, 255, .25));
+        }
+        .menu-size-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            margin-top: -6px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: #dc2626;
+            box-shadow: 0 0 12px rgba(239, 68, 68, .6);
+        }
+
+        /* ==================== SETTINGS MODAL ==================== */
+        #inline-settings-panel {
+            position: fixed;
+            z-index: 50;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(0, 0, 0, .82);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .22s ease;
+        }
+        #inline-settings-panel.is-open { opacity: 1; pointer-events: auto; }
+        .settings-card {
+            width: min(460px, calc(100% - 20px));
+            max-height: 88vmin;
+            overflow-y: auto;
+            padding: clamp(18px, 4vw, 26px);
+            border: 1px solid rgba(255, 255, 255, .25);
+            border-top: 3px solid #dc2626;
+            border-radius: 24px;
+            background: linear-gradient(155deg, rgba(22, 25, 34, .99), rgba(9, 10, 14, .99));
+            box-shadow: 0 24px 70px rgba(0, 0, 0, .8), 0 0 36px rgba(220, 38, 38, .18);
+        }
+        .settings-title { font: 800 21px/1 Rajdhani, sans-serif; letter-spacing: .08em; color: #ffffff; }
+        .shape-option {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 13px 14px;
+            border: 1px solid rgba(255, 255, 255, .14);
+            border-radius: 15px;
+            background: rgba(255, 255, 255, .03);
+            text-align: left;
+            cursor: pointer;
+            transition: border-color .18s ease, background .18s ease, transform .18s ease;
+        }
+        .shape-option:hover { transform: translateY(-1px); border-color: rgba(239, 68, 68, .65); }
+        .shape-option.active {
+            border-color: #ef4444;
+            background: linear-gradient(90deg, rgba(220, 38, 38, .22), rgba(255, 255, 255, .06));
+            box-shadow: inset 0 0 18px rgba(220, 38, 38, .14);
+        }
+        .shape-option-title { font: 800 14px/1.1 Rajdhani, sans-serif; color: #fff; }
+        .shape-option-desc { margin-top: 4px; font: 500 10px/1.35 Inter, sans-serif; color: rgba(255, 255, 255, .58); }
+        .settings-action {
+            width: 100%;
+            min-height: 46px;
+            border: 1px solid #ffffff;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #dc2626, #991b1b);
+            color: #ffffff;
+            font: 800 14px Rajdhani, sans-serif;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 8px 22px rgba(220, 38, 38, .35);
+            transition: filter .18s ease, transform .18s ease;
+        }
+        .settings-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .settings-toggle {
+            min-width: 66px;
+            padding: 7px 14px;
+            border: 1px solid #ffffff;
+            border-radius: 9px;
+            background: #dc2626;
+            color: #ffffff;
+            font: 800 11px Inter, sans-serif;
+            cursor: pointer;
+            transition: all .18s ease;
+        }
+        .settings-toggle.off {
+            border-color: rgba(255, 255, 255, .2);
+            background: #272b34;
+            color: rgba(255, 255, 255, .65);
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: rgba(239, 68, 68, .55); border-radius: 10px; }
+
+        /* ==================== RESPONSIVE & PORTRAIT HANDLING ==================== */
+        @supports (padding: max(0px)) {
+            main {
+                padding-top: max(8px, env(safe-area-inset-top));
+                padding-right: max(8px, env(safe-area-inset-right));
+                padding-bottom: max(8px, env(safe-area-inset-bottom));
+                padding-left: max(8px, env(safe-area-inset-left));
+            }
+        }
+
+        @media (orientation: portrait) {
+            html, body { overflow: hidden; }
+            body {
+                position: fixed;
+                top: 0;
+                left: 100vw;
+                width: 100vh;
+                height: 100vw;
+                max-width: none;
+                max-height: none;
+                transform: rotate(90deg);
+                transform-origin: top left;
+            }
+            main {
+                width: 100%;
+                height: 100%;
+                min-width: 0;
+                min-height: 0;
+                padding: 8px;
+            }
+            .hud-overlay, .hud-grid { position: fixed; inset: 0; }
+            #layout-circle, #layout-hexagon { width: min(86vmin, 530px); }
+            #layout-arc { max-height: 94vh; }
+            .settings-card { max-height: 88vw; }
+        }
+
+        /* Layar HP / layar kecil: menu dibuat lebih ringkas agar tidak menutupi gameplay */
+        @media (max-width: 760px), ((hover: none) and (pointer: coarse)) {
+            #layout-circle { width: min(62vmin, 330px); }
+            #layout-hexagon { width: min(64vmin, 340px); }
+            .center-hub { width: clamp(74px, 27%, 104px); }
+            .hub-title { font-size: 11px; letter-spacing: .08em; }
+            .hub-hint { padding: 2px 7px; font-size: 7px; }
+            .hub-logo-wrap { width: 62%; }
+            .slice-content { gap: 2px; }
+            .slice-content i { font-size: clamp(12px, 3.4vw, 17px); }
+            .slice-content span { font-size: 9px; letter-spacing: .05em; }
+            .hex-node-inner i { width: clamp(16px, 4vmin, 22px); height: clamp(16px, 4vmin, 22px); font-size: clamp(9px, 2vmin, 12px); }
+            .hex-node-inner span { font-size: clamp(7px, 1.5vmin, 9.5px); }
+            .arc-item { height: clamp(68px, 15vmin, 84px); }
+            .arc-icon { width: clamp(26px, 6vmin, 32px); height: clamp(26px, 6vmin, 32px); font-size: clamp(12px, 3vmin, 15px); }
+            .arc-close-button { min-height: 44px; padding: 6px 18px; gap: 9px; }
+            .arc-close-button .hub-logo-wrap { width: 34px; height: 34px; flex: 0 0 34px; }
+        }
+
+        /* Layar pendek (HP landscape): panel Settings dipadatkan agar semua kontrol mudah dijangkau */
+        @media (max-height: 520px) {
+            .settings-card { max-height: 94vh; padding: 14px 16px; border-radius: 18px; }
+            .settings-title { font-size: 17px; }
+            .shape-option { padding: 9px 12px; }
+            .shape-option-desc { display: none; }
+            .settings-action { min-height: 40px; }
+            .spu-pos-grid { grid-template-columns: repeat(3, 38px); gap: 6px; }
+            .spu-pos { width: 38px; height: 38px; }
+            .spu-chip { padding: 9px 4px; font-size: 11px; }
+        }
+
+        @media (max-height: 520px) and (orientation: landscape) {
+            #layout-arc { max-height: 96vh; gap: 8px; }
+            #arc-items-container.is-compact .arc-item { height: clamp(60px, 17vh, 82px); }
+            .settings-card { max-height: 90vh; }
+        }
+
+        /* Touch devices: reset hover states after tap */
+        @media (hover: none), (pointer: coarse) {
+            .slice-group:hover .slice-path {
+                fill: rgba(15, 17, 23, .95);
+                stroke: rgba(255, 255, 255, .24);
+                filter: none;
+            }
+            .slice-group:hover .slice-content { color: #ffffff; transform: none; }
+            .slice-group:hover .slice-content i { color: #ef4444; filter: none; }
+            .hex-node:hover {
+                transform: translate(-50%, -50%);
+                background: linear-gradient(150deg, #ef4444 0%, #ffffff 52%, rgba(255, 255, 255, .25) 100%);
+                filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .65));
+            }
+            .hex-node:hover .hex-node-inner {
+                background: linear-gradient(160deg, #191c25, #0a0b10);
+                color: #ffffff;
+            }
+            .hex-node:hover .hex-node-inner i {
+                border-color: rgba(239, 68, 68, .35);
+                background: rgba(239, 68, 68, .12);
+                color: #ef4444;
+            }
+            .arc-item:hover {
+                z-index: 3;
+                transform: translateY(calc(var(--lift, 0px) * -1));
+                border-color: rgba(255, 255, 255, .2);
+                border-top-color: rgba(239, 68, 68, .75);
+                background: linear-gradient(160deg, rgba(24, 27, 36, .96), rgba(10, 11, 16, .98));
+                color: #ffffff;
+                box-shadow: 0 12px 28px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .14);
+            }
+            #arc-items-container.is-compact .arc-item:hover { transform: none; }
+            .arc-item:hover .arc-icon {
+                border-color: rgba(239, 68, 68, .35);
+                background: rgba(239, 68, 68, .12);
+                color: #ef4444;
+            }
+            .center-hub:hover { transform: none; }
+            .arc-close-button:hover { transform: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+        }
+    </style>
 </head>
 <body>
-<div id="speedometerContainer">
-  <div id="housingBezel" class="cluster-housing">
-    <svg class="dial" viewBox="0 0 350 350" aria-hidden="true">
-      <defs>
-        <linearGradient id="speedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#fff"/><stop offset="55%" stop-color="#ff405b"/><stop offset="100%" stop-color="#7d0018"/>
-        </linearGradient>
-        <linearGradient id="auxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#e5092f"/><stop offset="100%" stop-color="#fff"/>
-        </linearGradient>
-        <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
-      <circle class="track" cx="175" cy="175" r="148" stroke-dasharray="929.9" stroke-dashoffset="360" stroke-linecap="round"/>
-      <circle class="track inner" cx="175" cy="175" r="132" stroke-dasharray="829.3" stroke-dashoffset="320" stroke-linecap="round"/>
-      <circle class="track" cx="175" cy="175" r="163" stroke-width="5" stroke-dasharray="1024.1" stroke-dashoffset="920" transform="rotate(130 175 175)"/>
-      <circle class="track" cx="175" cy="175" r="163" stroke-width="5" stroke-dasharray="1024.1" stroke-dashoffset="920" transform="rotate(230 175 175)"/>
-      <circle id="speedArc" class="arc" cx="175" cy="175" r="148" stroke-dasharray="929.9" stroke-dashoffset="929.9"/>
-      <circle id="rpmArc" class="arc" cx="175" cy="175" r="132" stroke-dasharray="829.3" stroke-dashoffset="829.3"/>
-      <circle id="healthArc" class="arc" cx="175" cy="175" r="163" stroke="url(#auxGrad)" stroke-dasharray="1024.1" stroke-dashoffset="1024.1" transform="rotate(130 175 175)"/>
-      <circle id="fuelArc" class="arc" cx="175" cy="175" r="163" stroke="url(#auxGrad)" stroke-dasharray="1024.1" stroke-dashoffset="1024.1" transform="rotate(230 175 175)"/>
-      <g opacity=".58">
-        <g id="ticks"></g>
-      </g>
-      <!-- RPM indicator needle: short secondary needle inside the main dial -->
-      <g id="rpmNeedleGroup" class="rpm-needle" style="transform:rotate(-125deg)">
-        <line x1="175" y1="175" x2="175" y2="57" stroke="#f7f8fb" stroke-width="2"
-              stroke-linecap="round" opacity=".88" filter="url(#glow)"/>
-        <circle cx="175" cy="175" r="3.5" fill="#ff405b" stroke="#fff" stroke-width="1"/>
-      </g>
-      <!-- Main speed needle -->
-      <g id="needleGroup" class="needle-transition" style="transform:rotate(-125deg)">
-        <!-- Main tapered speed needle -->
-        <path d="M171.8 181 L175 30 L178.2 181 Z" fill="#f7f7f8" filter="url(#glow)"/>
-        <path d="M174.2 174 L175 42 L175.8 174 Z" fill="#e5092f"/>
-        <!-- Layered center hub -->
-        <circle cx="175" cy="175" r="10.5" fill="#090909" stroke="#f7f7f8" stroke-width="1.6"/>
-        <circle cx="175" cy="175" r="6.5" fill="#e5092f" stroke="#ff405b" stroke-width="1.2"/>
-        <circle cx="175" cy="175" r="2" fill="#fff"/>
-      </g>
-    </svg>
-    <div class="center-ui">
-      <div class="topline">
-        <span id="signalLeft" class="signal">◀</span>
-        <span id="gearDisplay" class="gear">P</span>
-        <span id="signalRight" class="signal">▶</span>
-      </div>
-      <div class="readout">
-        <span id="speedValue" class="speed">0</span>
-        <span class="unit">KM / H</span>
-        <div class="rpm-pill"><span class="rpm-label">RPM</span><span id="rpmValue" class="rpm-number">800</span></div>
-      </div>
-      <div class="status-dock" aria-label="Vehicle status">
-        <span id="iconEngine" class="status-icon" title="Engine" aria-label="Engine">
-          <svg viewBox="0 0 24 24"><path d="M5 9h3l2-3h5l2 3h2a2 2 0 0 1 2 2v6h-3v2H8v-2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z"/><path d="M10 6V4h4M3 12H1m22 0h-2"/></svg>
-        </span>
-        <span id="iconLights" class="status-icon" title="Headlights" aria-label="Headlights">
-          <svg viewBox="0 0 24 24"><path d="M12 4a7 7 0 0 0 0 14V4Z"/><path d="M16 7h5M17 12h5M16 17h5"/></svg>
-        </span>
-        <span id="iconSeatbelt" class="status-icon warn" title="Seatbelt" aria-label="Seatbelt">
-          <svg viewBox="0 0 24 24"><path d="m7 3 4 5-3 3-4-5M14 9l3-3 3 3-4 4"/><path d="m8 12 8 8M5 19l4-4m6-6 3-3"/></svg>
-        </span>
-        <span id="iconLock" class="status-icon" title="Door lock" aria-label="Door lock">
-          <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3"/></svg>
-        </span>
-        <span id="iconHandbrake" class="status-icon warn" title="Handbrake" aria-label="Handbrake">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 17V7h3a3 3 0 0 1 0 6h-3"/></svg>
-        </span>
-      </div>
+    <div class="hud-overlay"></div>
+    <div class="hud-grid"></div>
+
+    <!-- SPEEDOMETER HUD -->
+    <div id="speedo-layer" data-pos="bottom-right">
+        <div id="speedo-twopod" class="speedo-variant is-active" aria-hidden="true">
+            <button type="button" class="speedo-resize-handle" aria-label="Ubah ukuran speedometer"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
+            <div class="twopod">
+            <div id="tp-housingBezel" class="cluster-shell">
+                <div id="tp-shiftBar" class="shift-bar" aria-hidden="true"></div>
+
+                <svg class="dial" viewBox="0 0 480 262" aria-hidden="true">
+                    <defs>
+                        <radialGradient id="tpPodBg" cx="42%" cy="26%" r="78%">
+                            <stop offset="0%" stop-color="#1b1e27" />
+                            <stop offset="62%" stop-color="#0b0c11" />
+                            <stop offset="100%" stop-color="#04050a" />
+                        </radialGradient>
+                        <linearGradient id="tpBezelRim" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="rgba(255,255,255,0.30)" />
+                            <stop offset="46%" stop-color="rgba(229,9,47,0.50)" />
+                            <stop offset="100%" stop-color="rgba(255,255,255,0.12)" />
+                        </linearGradient>
+                        <linearGradient id="tpSportGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#ffffff" />
+                            <stop offset="56%" stop-color="#ff405b" />
+                            <stop offset="100%" stop-color="#9e001f" />
+                        </linearGradient>
+                        <linearGradient id="tpGearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ff556d" />
+                            <stop offset="55%" stop-color="#e5092f" />
+                            <stop offset="100%" stop-color="#7d0019" />
+                        </linearGradient>
+                        <linearGradient id="tpDeckSeam" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="rgba(229,9,47,0)" />
+                            <stop offset="45%" stop-color="rgba(229,9,47,0.55)" />
+                            <stop offset="100%" stop-color="rgba(229,9,47,0)" />
+                        </linearGradient>
+                        <filter id="tpGlow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="2.1" result="b" />
+                            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                        <filter id="tpSoftGlow" x="-40%" y="-40%" width="180%" height="180%">
+                            <feGaussianBlur stdDeviation="3.4" result="b" />
+                            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                    </defs>
+
+                    <line x1="240" y1="66" x2="240" y2="188" stroke="url(#tpDeckSeam)" stroke-width="1.4" stroke-linecap="round" />
+                    <circle cx="240" cy="126" r="2.6" fill="rgba(255,255,255,.35)" />
+
+                    <g id="tp-podLeft">
+                        <circle cx="128" cy="126" r="94" fill="url(#tpPodBg)" stroke="url(#tpBezelRim)" stroke-width="2.4" />
+                        <circle cx="128" cy="126" r="87" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1" />
+                        <g transform="rotate(-210 128 126)">
+                            <circle cx="128" cy="126" r="80" fill="none" stroke="rgba(255,255,255,.075)" stroke-width="7" stroke-linecap="round" stroke-dasharray="502.65" stroke-dashoffset="167.55" />
+                            <circle id="tp-speedArc" class="arc" cx="128" cy="126" r="80" stroke="url(#tpSportGrad)" stroke-width="7" stroke-dasharray="502.65" stroke-dashoffset="502.65" filter="url(#tpGlow)" />
+                        </g>
+                        <g id="tp-ticksSpeed"></g>
+                        <g id="tp-needleSpeed" class="needle" style="transform: rotate(-120deg)">
+                            <path d="M125.4 140 L126.9 60 L129.1 60 L130.6 140 Z" fill="#e8ebf2" filter="url(#tpGlow)" />
+                            <path d="M126.9 126 L128 62 L129.1 126 Z" fill="#ff405b" />
+                            <circle cx="128" cy="126" r="9" fill="#0a0b10" stroke="rgba(255,255,255,.30)" stroke-width="1.4" />
+                            <circle cx="128" cy="126" r="4.6" fill="#e5092f" />
+                            <circle cx="128" cy="126" r="1.7" fill="#fff" />
+                        </g>
+                        <text id="tp-speedValue" class="readout-value" x="128" y="178">0</text>
+                        <text class="readout-unit" x="128" y="197">KM/H</text>
+                    </g>
+
+                    <g id="tp-podRight">
+                        <circle cx="352" cy="126" r="94" fill="url(#tpPodBg)" stroke="url(#tpBezelRim)" stroke-width="2.4" />
+                        <circle cx="352" cy="126" r="87" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="1" />
+                        <g transform="rotate(-210 352 126)">
+                            <circle cx="352" cy="126" r="80" fill="none" stroke="rgba(255,255,255,.075)" stroke-width="7" stroke-linecap="round" stroke-dasharray="502.65" stroke-dashoffset="167.55" />
+                            <circle id="tp-rpmArc" class="arc" cx="352" cy="126" r="80" stroke="url(#tpSportGrad)" stroke-width="7" stroke-dasharray="502.65" stroke-dashoffset="502.65" filter="url(#tpGlow)" />
+                        </g>
+                        <g id="tp-ticksRpm"></g>
+                        <g id="tp-needleRpm" class="needle" style="transform: rotate(-120deg)">
+                            <path d="M349.4 140 L350.9 60 L353.1 60 L354.6 140 Z" fill="#e8ebf2" filter="url(#tpGlow)" />
+                            <path d="M350.9 126 L352 62 L353.1 126 Z" fill="#ff405b" />
+                            <circle cx="352" cy="126" r="9" fill="#0a0b10" stroke="rgba(255,255,255,.30)" stroke-width="1.4" />
+                            <circle cx="352" cy="126" r="4.6" fill="#e5092f" />
+                            <circle cx="352" cy="126" r="1.7" fill="#fff" />
+                        </g>
+                        <rect x="327" y="143" width="50" height="36" rx="9" fill="url(#tpGearGrad)" stroke="rgba(255,255,255,.34)" stroke-width="1.2" filter="url(#tpSoftGlow)" />
+                        <text id="tp-gearValue" class="readout-value" x="352" y="169">P</text>
+                        <text id="tp-rpmValueBox" x="352" y="197"><tspan id="tp-rpmValue">800</tspan> RPM</text>
+                    </g>
+
+                    <path id="tp-signalLeft" class="signal" d="M28 112 L16 126 L28 140" />
+                    <path id="tp-signalRight" class="signal" d="M452 112 L464 126 L452 140" />
+                </svg>
+
+                <div class="bottom-deck">
+                    <div id="tp-healthBadge" class="wing left" title="Vehicle Health">
+                        <span class="wing-icon"><svg viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.2 8-8 10-4.8-2-8-5.3-8-10V6l8-3.2Z" /><path d="M12 9v6M9 12h6" /></svg></span>
+                        <span class="wing-body">
+                            <span id="tp-healthText" class="wing-value">100%</span>
+                            <span class="bar"><i id="tp-healthFill"></i></span>
+                        </span>
+                    </div>
+
+                    <div class="status-dock" aria-label="Vehicle status">
+                        <span id="tp-iconEngine" class="status-icon" title="Engine">
+                            <svg viewBox="0 0 24 24"><path d="M5 9h3l2-3h5l2 3h2a2 2 0 0 1 2 2v6h-3v2H8v-2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z" /><path d="M10 6V4h4" /></svg>
+                        </span>
+                        <span id="tp-iconLights" class="status-icon" title="Lights">
+                            <svg viewBox="0 0 24 24"><path d="M12 4a7 7 0 0 0 0 14V4Z" /><path d="M16 7h5M17 12h5M16 17h5" /></svg>
+                        </span>
+                        <span id="tp-iconSeatbelt" class="status-icon warn" title="Seatbelt">
+                            <svg viewBox="0 0 24 24"><path d="m7 3 4 5-3 3-4-5M14 9l3-3 3 3-4 4" /><path d="m8 12 8 8" /></svg>
+                        </span>
+                        <span id="tp-iconLock" class="status-icon" title="Lock">
+                            <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" /></svg>
+                        </span>
+                        <span id="tp-iconHandbrake" class="status-icon warn" title="Handbrake">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M10 17V7h3a3 3 0 0 1 0 6h-3" /></svg>
+                        </span>
+                    </div>
+
+                    <div id="tp-fuelBadge" class="wing right" title="Fuel">
+                        <span class="wing-icon"><svg viewBox="0 0 24 24"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M4 21h13M8 7h5v5H8z" /><path d="M16 8h2l2 3v6a2 2 0 0 1-4 0v-4" /></svg></span>
+                        <span class="wing-body">
+                            <span id="tp-fuelText" class="wing-value">85%</span>
+                            <span class="bar"><i id="tp-fuelFill"></i></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <div id="speedo-onepod" class="speedo-variant" aria-hidden="true">
+            <button type="button" class="speedo-resize-handle" aria-label="Ubah ukuran speedometer"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></button>
+            <div class="onepod">
+            <div id="op-housingBezel" class="cluster-housing">
+                <svg class="dial" viewBox="0 0 350 350" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="opSpeedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#ffffff" />
+                            <stop offset="60%" stop-color="#ff405b" />
+                            <stop offset="100%" stop-color="#9e001f" />
+                        </linearGradient>
+                        <linearGradient id="opAuxGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#e5092f" />
+                            <stop offset="100%" stop-color="#ffffff" />
+                        </linearGradient>
+                        <filter id="opGlow" x="-30%" y="-30%" width="160%" height="160%">
+                            <feGaussianBlur stdDeviation="2.5" result="b" />
+                            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                        </filter>
+                    </defs>
+
+                    <circle class="track" cx="175" cy="175" r="145" stroke-dasharray="911.1" stroke-dashoffset="291" />
+                    <circle class="track inner" cx="175" cy="175" r="129" stroke-dasharray="810.5" stroke-dashoffset="259" />
+                    <circle class="track" cx="175" cy="175" r="162" stroke-width="5" stroke-dasharray="1017.9" stroke-dashoffset="914" transform="rotate(130 175 175)" />
+                    <circle class="track" cx="175" cy="175" r="162" stroke-width="5" stroke-dasharray="1017.9" stroke-dashoffset="914" transform="rotate(230 175 175)" />
+
+                    <circle id="op-speedArc" class="arc" cx="175" cy="175" r="145" stroke-dasharray="911.1" stroke-dashoffset="911.1" />
+                    <circle id="op-rpmArc" class="arc" cx="175" cy="175" r="129" stroke-dasharray="810.5" stroke-dashoffset="810.5" />
+                    <circle id="op-healthArc" class="arc" cx="175" cy="175" r="162" stroke="url(#opAuxGrad)" stroke-dasharray="1017.9" stroke-dashoffset="1017.9" transform="rotate(130 175 175)" />
+                    <circle id="op-fuelArc" class="arc" cx="175" cy="175" r="162" stroke="url(#opAuxGrad)" stroke-dasharray="1017.9" stroke-dashoffset="1017.9" transform="rotate(230 175 175)" />
+
+                    <g id="op-ticks" opacity=".68"></g>
+
+                    <g id="op-needleGroup" class="needle-transition" style="transform: rotate(-122deg)">
+                        <path d="M173.4 192 L174.4 42 L175.6 42 L176.6 192 Z" fill="#ffffff" filter="url(#opGlow)" />
+                        <path d="M174.3 175 L175 48 L175.7 175 Z" fill="#ff405b" />
+                        <circle cx="175" cy="175" r="9.5" fill="#0b0c10" stroke="rgba(255,255,255,.22)" stroke-width="1.5" />
+                        <circle cx="175" cy="175" r="5.5" fill="#e5092f" />
+                        <circle cx="175" cy="175" r="2" fill="#ffffff" />
+                    </g>
+                </svg>
+
+                <div class="center-ui">
+                    <div class="topline">
+                        <span id="op-signalLeft" class="signal">&#9664;</span>
+                        <span id="op-gearDisplay" class="gear">P</span>
+                        <span id="op-signalRight" class="signal">&#9654;</span>
+                    </div>
+
+                    <div class="readout">
+                        <span id="op-speedValue" class="speed">0</span>
+                        <span class="unit">KM/H</span>
+                        <span class="rpm-mini"><b id="op-rpmValue">800</b> RPM</span>
+                    </div>
+
+                    <div class="status-dock" aria-label="Vehicle status">
+                        <span id="op-iconEngine" class="status-icon" title="Engine">
+                            <svg viewBox="0 0 24 24"><path d="M5 9h3l2-3h5l2 3h2a2 2 0 0 1 2 2v6h-3v2H8v-2H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2Z" /><path d="M10 6V4h4M3 12H1m22 0h-2" /></svg>
+                        </span>
+                        <span id="op-iconLights" class="status-icon" title="Lights">
+                            <svg viewBox="0 0 24 24"><path d="M12 4a7 7 0 0 0 0 14V4Z" /><path d="M16 7h5M17 12h5M16 17h5" /></svg>
+                        </span>
+                        <span id="op-iconSeatbelt" class="status-icon warn" title="Seatbelt">
+                            <svg viewBox="0 0 24 24"><path d="m7 3 4 5-3 3-4-5M14 9l3-3 3 3-4 4" /><path d="m8 12 8 8M5 19l4-4m6-6 3-3" /></svg>
+                        </span>
+                        <span id="op-iconLock" class="status-icon" title="Lock">
+                            <svg viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="11" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3m-4 4v3" /></svg>
+                        </span>
+                        <span id="op-iconHandbrake" class="status-icon warn" title="Handbrake">
+                            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M10 17V7h3a3 3 0 0 1 0 6h-3" /></svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div id="op-healthBadge" class="wing left" title="Vehicle Health">
+                    <span class="wing-icon"><svg viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.2 8-8 10-4.8-2-8-5.3-8-10V6l8-3.2Z" /><path d="M12 7v9M7.5 11.5h9" /></svg></span>
+                    <span id="op-healthText" class="wing-value">100%</span>
+                </div>
+
+                <div id="op-fuelBadge" class="wing right" title="Fuel">
+                    <span id="op-fuelText" class="wing-value">85%</span>
+                    <span class="wing-icon"><svg viewBox="0 0 24 24"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M4 21h13M8 7h5v5H8z" /><path d="M16 8h2l2 3v6a2 2 0 0 1-4 0v-4" /></svg></span>
+                </div>
+            </div>
+            </div>
+        </div>
     </div>
-    <div class="brand">REDLINE // DRIVE SYSTEM</div>
-    <div id="healthBadge" class="wing left">
-      <span id="healthIcon" class="wing-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.8 20 6v5.2c0 4.7-3.2 8-8 10-4.8-2-8-5.3-8-10V6l8-3.2Z"/><path d="M12 7v9M7.5 11.5h9"/></svg></span>
-      <span class="wing-label"><span class="wing-caption">HEALTH</span><span id="healthText" class="wing-value">100%</span></span>
+
+    <main>
+        <!-- LAYOUT 1: CIRCLE -->
+        <section id="layout-circle" class="menu-enter" aria-label="Radial circle menu">
+            <div class="circle-outer-ring"></div>
+            <svg id="circle-menu-svg" viewBox="-260 -260 520 520" class="glow-chrome" role="group" aria-label="Menu items">
+                <defs>
+                    <linearGradient id="merahPutihGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ef4444" />
+                        <stop offset="65%" stop-color="#dc2626" />
+                        <stop offset="100%" stop-color="#991b1b" />
+                    </linearGradient>
+                </defs>
+                <g id="circle-slices-group"></g>
+            </svg>
+            <button id="center-hub-circle" class="center-hub soft-pulse" type="button" onclick="handleCenterClick()" aria-label="Close radial menu">
+                <span class="hub-logo-wrap">
+                    <img id="center-hub-logo-circle" class="center-hub-logo" src="assets/logo.png" alt="Logo" draggable="false">
+                    <i id="center-hub-icon-circle" class="fa-solid fa-xmark hidden" aria-hidden="true"></i>
+                </span>
+                <span id="center-hub-hint-circle" class="hub-hint">CLOSE</span>
+            </button>
+        </section>
+
+        <!-- LAYOUT 2: HEXAGON -->
+        <section id="layout-hexagon" class="hidden menu-enter" aria-label="Hexagon menu">
+            <svg id="hex-connector-svg" viewBox="0 0 540 540" aria-hidden="true">
+                <defs>
+                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ef4444" stop-opacity=".9" />
+                        <stop offset="50%" stop-color="#ffffff" stop-opacity=".65" />
+                        <stop offset="100%" stop-color="#dc2626" stop-opacity=".35" />
+                    </linearGradient>
+                </defs>
+                <circle cx="270" cy="270" r="190" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1.2" stroke-dasharray="6 8" />
+                <polygon id="hex-outer-polygon" fill="none" stroke="rgba(239,68,68,0.18)" stroke-width="1" />
+                <g id="hex-connector-lines"></g>
+            </svg>
+            <div id="hex-nodes-container"></div>
+            <button id="center-hub-hexagon" class="center-hub hex-center-hub" type="button" onclick="handleCenterClick()" aria-label="Close radial menu">
+                <span class="hex-center-hub-inner">
+                    <span class="hub-logo-wrap">
+                        <img id="center-hub-logo-hexagon" class="center-hub-logo" src="assets/logo.png" alt="Logo" draggable="false">
+                        <i id="center-hub-icon-hexagon" class="fa-solid fa-xmark hidden" aria-hidden="true"></i>
+                    </span>
+                    <span id="center-hub-hint-hexagon" class="hub-hint">CLOSE</span>
+                </span>
+            </button>
+        </section>
+
+        <!-- LAYOUT 3: ARC / FLOATING DOCK -->
+        <section id="layout-arc" class="hidden menu-enter" aria-label="Floating dock menu">
+            <div id="arc-items-container"></div>
+            <button type="button" class="arc-close-button" onclick="handleCenterClick()" aria-label="Close radial menu">
+                <span class="hub-logo-wrap">
+                    <img id="center-hub-logo-arc" class="center-hub-logo" src="assets/logo.png" alt="Logo" draggable="false">
+                    <i id="center-hub-icon-arc" class="fa-solid fa-xmark hidden" aria-hidden="true"></i>
+                </span>
+                <span class="text-left">
+                    <span id="center-hub-title-arc" class="hub-title block">CLOSE MENU</span>
+                    <span id="center-hub-hint-arc" class="hub-hint">TEKAN [ESC]</span>
+                </span>
+            </button>
+        </section>
+    </main>
+
+    <!-- SETTINGS MODAL -->
+    <div id="inline-settings-panel" aria-hidden="true">
+        <div class="settings-card">
+            <div class="flex items-center justify-between gap-3 border-b border-white/15 pb-4 mb-4">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-xl border border-white/40 bg-red-600 text-white shadow-lg shadow-red-600/30">
+                        <i class="fa-solid fa-sliders text-lg"></i>
+                    </span>
+                    <div>
+                        <h3 class="settings-title uppercase">RADIAL <span class="text-red-500">SETTINGS</span></h3>
+                        <p class="mt-1 text-[10px] font-semibold tracking-wider text-white/55">TEMA MERAH PUTIH EDITION</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSettingsModal()" class="flex h-9 w-9 items-center justify-center rounded-lg text-white/60 transition hover:bg-red-600/20 hover:text-white" aria-label="Tutup pengaturan">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <div class="mb-3 text-[10px] font-extrabold tracking-[.16em] text-white/50">PILIH TATA LETAK MENU</div>
+            <div class="space-y-2.5">
+                <button type="button" onclick="selectShape('circle')" id="opt-shape-circle" class="shape-option active">
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid fa-circle-notch w-6 text-center text-xl text-red-500"></i>
+                        <span>
+                            <span class="shape-option-title block">Classic Circle</span>
+                            <span class="shape-option-desc block">Menu melingkar presisi dengan sektor radial.</span>
+                        </span>
+                    </span>
+                    <i class="status-indicator fa-solid fa-circle-check text-red-500"></i>
+                </button>
+                <button type="button" onclick="selectShape('hexagon')" id="opt-shape-hexagon" class="shape-option">
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid fa-cubes-stacked w-6 text-center text-xl text-red-500"></i>
+                        <span>
+                            <span class="shape-option-title block">Sci-Fi Hexagon</span>
+                            <span class="shape-option-desc block">Node heksagonal simetris dengan garis konektor.</span>
+                        </span>
+                    </span>
+                    <i class="status-indicator fa-solid fa-circle-check hidden text-red-500"></i>
+                </button>
+                <button type="button" onclick="selectShape('arc')" id="opt-shape-arc" class="shape-option">
+                    <span class="flex items-center gap-3">
+                        <i class="fa-solid fa-grip w-6 text-center text-xl text-red-500"></i>
+                        <span>
+                            <span class="shape-option-title block">Floating Dock</span>
+                            <span class="shape-option-desc block">Kartu melengkung elegan &amp; grid rapi di layar kecil.</span>
+                        </span>
+                    </span>
+                    <i class="status-indicator fa-solid fa-circle-check hidden text-red-500"></i>
+                </button>
+            </div>
+
+            <div class="mt-5 border-t border-white/15 pt-4">
+                <div class="mb-1 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-extrabold tracking-[.16em] text-white/50">UKURAN MENU</span>
+                    <span id="menu-size-value" class="font-rajdhani text-sm font-bold tracking-wide text-white">90%</span>
+                </div>
+                <input id="menu-size-range" type="range" min="60" max="115" step="1" value="90" oninput="setMenuScale(this.value / 100)" class="menu-size-range" aria-label="Ukuran menu radial">
+                <div class="flex items-center justify-between text-[9px] font-semibold tracking-wider text-white/40">
+                    <span>KECIL</span><span>SEDANG</span><span>BESAR</span>
+                </div>
+            </div>
+
+            <div class="mt-5 border-t border-white/15 pt-4">
+                <div class="mb-3 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-extrabold tracking-[.16em] text-white/50">SPEEDOMETER</span>
+                    <button type="button" onclick="toggleSpeedoDrag()" id="btn-speedo-drag" class="settings-toggle">GESER</button>
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <button type="button" onclick="setSpeedoStyle('twopod')" id="opt-speedo-twopod" class="spu-chip"><i class="fa-solid fa-gauge-high"></i><span>2 POD</span></button>
+                    <button type="button" onclick="setSpeedoStyle('onepod')" id="opt-speedo-onepod" class="spu-chip"><i class="fa-solid fa-gauge"></i><span>1 POD</span></button>
+                    <button type="button" onclick="setSpeedoStyle('off')" id="opt-speedo-off" class="spu-chip"><i class="fa-solid fa-eye-slash"></i><span>OFF</span></button>
+                </div>
+                <div class="mb-1 mt-4 flex items-center justify-between gap-2">
+                    <span class="text-[10px] font-extrabold tracking-[.16em] text-white/50">UKURAN HUD</span>
+                    <span id="hud-size-value" class="font-rajdhani text-sm font-bold tracking-wide text-white">100%</span>
+                </div>
+                <input id="hud-size-range" type="range" min="60" max="220" step="1" value="100" oninput="setHudScale(this.value)" class="menu-size-range" aria-label="Ukuran speedometer">
+                <div class="mb-2 flex items-center justify-between text-[9px] font-semibold tracking-wider text-white/40">
+                    <span>KECIL</span><span>BESAR</span>
+                </div>
+                <div class="mb-2 mt-4 text-[10px] font-extrabold tracking-[.16em] text-white/50">POSISI HUD</div>
+                <div class="spu-pos-grid" id="spu-pos-grid">
+                    <button type="button" class="spu-pos" data-pos="top-left" onclick="setSpeedoPosition('top-left')" aria-label="Kiri atas"></button>
+                    <button type="button" class="spu-pos" data-pos="top-center" onclick="setSpeedoPosition('top-center')" aria-label="Tengah atas"></button>
+                    <button type="button" class="spu-pos" data-pos="top-right" onclick="setSpeedoPosition('top-right')" aria-label="Kanan atas"></button>
+                    <button type="button" class="spu-pos" data-pos="middle-left" onclick="setSpeedoPosition('middle-left')" aria-label="Kiri tengah"></button>
+                    <button type="button" class="spu-pos" data-pos="middle-center" onclick="setSpeedoPosition('middle-center')" aria-label="Tengah"></button>
+                    <button type="button" class="spu-pos" data-pos="middle-right" onclick="setSpeedoPosition('middle-right')" aria-label="Kanan tengah"></button>
+                    <button type="button" class="spu-pos" data-pos="bottom-left" onclick="setSpeedoPosition('bottom-left')" aria-label="Kiri bawah"></button>
+                    <button type="button" class="spu-pos" data-pos="bottom-center" onclick="setSpeedoPosition('bottom-center')" aria-label="Tengah bawah"></button>
+                    <button type="button" class="spu-pos" data-pos="bottom-right" onclick="setSpeedoPosition('bottom-right')" aria-label="Kanan bawah"></button>
+                </div>
+                <div class="mt-3 flex items-center justify-between gap-3">
+                    <span class="text-[10px] font-medium leading-tight text-white/45">Aktifkan GESER lalu tarik HUD untuk pindah posisi, cubit (pinch) atau tarik pegangan sudut untuk ubah ukuran.</span>
+                    <button type="button" onclick="resetSpeedoOffset()" class="settings-toggle off px-3">RESET</button>
+                </div>
+            </div>
+
+            <div class="mt-5 flex items-center justify-between border-t border-white/15 pt-4">
+                <span class="font-rajdhani text-sm font-bold tracking-wide text-white">SOUND EFFECT</span>
+                <button type="button" onclick="toggleAudio()" id="btn-audio-toggle" class="settings-toggle">ON</button>
+            </div>
+            <button type="button" onclick="closeSettingsModal()" class="settings-action mt-5">SIMPAN &amp; KEMBALI</button>
+        </div>
     </div>
-    <div id="fuelBadge" class="wing right">
-      <span class="wing-label"><span class="wing-caption">FUEL</span><span id="fuelText" class="wing-value">85%</span></span>
-      <span id="fuelIcon" class="wing-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2v16M4 21h13M8 7h5v5H8z"/><path d="M16 8h2l2 3v6a2 2 0 0 1-4 0v-4"/></svg></span>
-    </div>
-  </div>
-</div>
-<script>
-(() => {
-  'use strict';
-  const state={speed:0,rpm:800,gear:'P',fuel:85,health:100,engine:false,lights:false,seatbelt:false,locked:false,handbrake:true,signalLeft:false,signalRight:false};
-  const MAX_SPEED=300,MAX_RPM=8000;
-  const C={speed:929.9,rpm:829.3,aux:1024.1};
-  const $=id=>document.getElementById(id);
-  const el={
-    housing:$('housingBezel'),speed:$('speedValue'),speedArc:$('speedArc'),rpm:$('rpmValue'),rpmArc:$('rpmArc'),
-    gear:$('gearDisplay'),needle:$('needleGroup'),fuelArc:$('fuelArc'),fuelText:$('fuelText'),
-    healthArc:$('healthArc'),healthText:$('healthText'),healthBadge:$('healthBadge'),fuelBadge:$('fuelBadge'),
-    engine:$('iconEngine'),lights:$('iconLights'),belt:$('iconSeatbelt'),lock:$('iconLock'),brake:$('iconHandbrake'),
-    left:$('signalLeft'),right:$('signalRight')
-  };
-  // Generate fine dial ticks without relying on external libraries.
-  const ticks=$('ticks');
-  // Scale numerals placed just inside the outer tick ring.
-  for(let i=0;i<=6;i++){
-    const value=i*50, a=(-125+i*(245/6))*Math.PI/180;
-    // Nudge the zero away from the lower corner for a balanced scale.
-    const r=i===0?119:128;
-    const x=175+Math.cos(a)*r, y=175+Math.sin(a)*r+(i===0?0:3);
-    const label=document.createElementNS('http://www.w3.org/2000/svg','text');
-    label.setAttribute('x',x);label.setAttribute('y',y);
-    label.setAttribute('text-anchor','middle');label.setAttribute('dominant-baseline','middle');
-    // The dial is rotated -90deg; counter-rotate text so digits stay upright.
-    label.setAttribute('transform',`rotate(90 ${x} ${y})`);
-    label.setAttribute('fill',i===6?'#ff405b':'#f2f2f3');label.setAttribute('font-size','11');
-    label.setAttribute('font-family','Arial,sans-serif');label.setAttribute('font-weight','900');
-    label.setAttribute('paint-order','stroke');label.setAttribute('stroke','#080808');label.setAttribute('stroke-width','2.8');label.setAttribute('stroke-linejoin','round');
-    label.textContent=String(value);ticks.appendChild(label);
-  }
-  for(let i=0;i<=20;i++){
-    const a=(-125+i*12.25)*Math.PI/180,major=i%5===0;
-    const r1=major?137:140,r2=major?147:145;
-    const x1=175+Math.cos(a)*r1,y1=175+Math.sin(a)*r1,x2=175+Math.cos(a)*r2,y2=175+Math.sin(a)*r2;
-    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-    line.setAttribute('x1',x1);line.setAttribute('y1',y1);line.setAttribute('x2',x2);line.setAttribute('y2',y2);
-    line.setAttribute('stroke',major?(i>=15?'#e5092f':'#ffffff'):'#8b8b91');line.setAttribute('stroke-width',major?2.4:1.15);line.setAttribute('stroke-linecap','round');ticks.appendChild(line);
-  }
-  const clamp=(v,min,max)=>Math.min(Math.max(Number(v)||0,min),max);
-  const setStatus=(node,on,warn=false)=>{node.className='status-icon'+(warn?' warn':on?' on':'');};
-  function render(){
-    const speed=clamp(state.speed,0,MAX_SPEED),rpm=clamp(state.rpm,0,MAX_RPM);
-    const fuel=clamp(state.fuel,0,100),health=clamp(state.health,0,100);
-    el.speed.textContent=Math.round(speed);
-    el.speedArc.style.strokeDashoffset=C.speed-(speed/MAX_SPEED*570);
-    el.needle.style.transform=`rotate(${-125+(speed/MAX_SPEED*245)}deg)`;
-    el.rpm.textContent=Math.round(rpm);
-    el.rpmArc.style.strokeDashoffset=C.rpm-(rpm/MAX_RPM*510);
-    $('rpmNeedleGroup').style.transform=`rotate(${-125+(rpm/MAX_RPM*245)}deg)`;
-    el.housing.classList.toggle('shift-halo',rpm>=7000);
-    if(state.engine){
-      if(state.handbrake&&speed===0)state.gear='P';
-      else if(state.gear!=='R'&&state.gear!=='N')state.gear=speed<35?'1':speed<70?'2':speed<120?'3':speed<170?'4':speed<230?'5':'6';
-    }else state.gear='P';
-    el.gear.textContent=String(state.gear??'P').slice(0,3);
-    el.healthText.textContent=Math.round(health)+'%';
-    el.healthArc.style.strokeDashoffset=C.aux-(health/100*104);
-    el.healthBadge.classList.toggle('low',health<=30);
-    el.healthBadge.classList.toggle('critical',health<=30);
-    el.fuelText.textContent=Math.round(fuel)+'%';
-    el.fuelArc.style.strokeDashoffset=C.aux-(fuel/100*104);
-    el.fuelBadge.classList.toggle('low',fuel<=15);
-    setStatus(el.engine,state.engine);setStatus(el.lights,state.lights);
-    setStatus(el.belt,state.seatbelt,!state.seatbelt);setStatus(el.lock,state.locked);
-    setStatus(el.brake,state.handbrake,state.handbrake);
-    el.left.classList.toggle('signal-active',!!state.signalLeft);
-    el.right.classList.toggle('signal-active',!!state.signalRight);
-  }
-  // Public CEF bridge: keep the original updateSpeedometer(data) contract.
-  window.updateSpeedometer=function(data){
-    if(!data||typeof data!=='object')return;
-    const allowed=['speed','rpm','gear','fuel','health','engine','lights','seatbelt','locked','handbrake','signalLeft','signalRight'];
-    for(const key of allowed)if(Object.prototype.hasOwnProperty.call(data,key))state[key]=data[key];
-    render();
-  };
-  // SA-MP CEF server event: JSON data is sent every 200 ms by the gamemode.
-  if(window.cef&&typeof window.cef.on==='function'){
-    window.cef.on('speedometer_update',payload=>{
-      try{
-        const data=typeof payload==='string'?JSON.parse(payload):payload;
-        window.updateSpeedometer(data);
-      }catch(error){console.warn('Invalid speedometer_update payload',error);}
-    });
-  }
-  // Optional desktop preview controls; disable with ?preview=0 in the URL.
-  const preview=new URLSearchParams(location.search).get('preview')!=='0';
-  if(preview)window.addEventListener('keydown',e=>{
-    const k=e.key.toLowerCase();
-    if(k==='arrowup'){state.engine=true;state.handbrake=false;state.speed=clamp(state.speed+4,0,MAX_SPEED);state.rpm=clamp(1200+(state.speed%50)*150,0,MAX_RPM);}
-    else if(k==='arrowdown'){state.speed=clamp(state.speed-6,0,MAX_SPEED);state.rpm=clamp(state.rpm-200,800,MAX_RPM);}
-    else if(k==='e')state.engine=!state.engine;else if(k==='l')state.lights=!state.lights;
-    else if(k==='b')state.seatbelt=!state.seatbelt;else if(k==='k')state.locked=!state.locked;
-    else if(k==='h')state.handbrake=!state.handbrake;
-    else if(k==='arrowleft'){state.signalLeft=!state.signalLeft;state.signalRight=false;}
-    else if(k==='arrowright'){state.signalRight=!state.signalRight;state.signalLeft=false;}
-    else return;
-    render();
-  });
-  render();
-})();
-</script>
+    <script>
+        const menuItems = [
+            { id: 'phone',     title: 'Phone',     icon: 'fa-mobile-screen-button', cmd: '/phone' },
+            { id: 'inventory', title: 'Inventory', icon: 'fa-boxes-stacked',         cmd: '/inventory' },
+            { id: 'vehicles',  title: 'Vehicles',  icon: 'fa-car-side',              action: 'open-vehicles' },
+            { id: 'house',     title: 'House',     icon: 'fa-house-chimney',         cmd: '/house' },
+            { id: 'eprop',     title: 'Eprop',     icon: 'fa-building',              cmd: '/prop' },
+            { id: 'faction',   title: 'Faction',   icon: 'fa-shield-halved',         cmd: '/f' },
+            { id: 'toys',      title: 'Toys',      icon: 'fa-gamepad',               cmd: '/toys' },
+            { id: 'settings',  title: 'Settings',  icon: 'fa-gear',                  cmd: 'SETTING_ACTION' }
+        ];
+
+        const vehicleItems = [
+            { id: 'engine', title: 'Engine',  icon: 'fa-key',         cmd: '/engine' },
+            { id: 'lights', title: 'Lampu',   icon: 'fa-lightbulb',   cmd: '/lights' },
+            { id: 'trunk',  title: 'Trunk',   icon: 'fa-box-open',    cmd: '/trunk' },
+            { id: 'lock',   title: 'Lock',    icon: 'fa-lock',        cmd: '/lock' },
+            { id: 'hood',   title: 'Hood',    icon: 'fa-car',         cmd: '/hood' },
+            { id: 'back',   title: 'Kembali', icon: 'fa-arrow-left',  action: 'back' }
+        ];
+
+        const LOGO_ASSET_PATH = 'assets/logo.png';
+        let currentShape = 'circle';
+        let currentMenu = 'main';
+        let soundEnabled = true;
+        let audioCtx = null;
+        let radialClosed = false;
+
+        if (window.cef || window.mp) {
+            document.body.classList.add('cef-transparent');
+        }
+
+        function getActiveItems() {
+            return currentMenu === 'vehicles' ? vehicleItems : menuItems;
+        }
+
+        function getLogicalViewport() {
+            const width = document.documentElement.clientWidth || window.innerWidth || 1;
+            const height = document.documentElement.clientHeight || window.innerHeight || 1;
+            return width >= height
+                ? { width, height }
+                : { width: height, height: width };
+        }
+
+        function renderAllMenus() {
+            renderCircleMenu();
+            renderHexagonMenu();
+            renderArcMenu();
+            updateCenterHub();
+            updateShapeVisibility();
+        }
+
+        function initializeCenterLogos() {
+            document.querySelectorAll('.center-hub-logo').forEach(img => {
+                const showFallback = () => {
+                    img.dataset.failed = 'true';
+                    img.classList.add('hidden');
+                    const fallback = img.parentElement.querySelector('i');
+                    if (fallback) fallback.classList.remove('hidden');
+                };
+                img.addEventListener('error', showFallback, { once: true });
+                img.src = LOGO_ASSET_PATH;
+                if (img.complete && img.naturalWidth === 0) showFallback();
+            });
+        }
+
+        function updateCenterHub() {
+            const isSubmenu = currentMenu === 'vehicles';
+            const title = isSubmenu ? 'BACK' : 'CLOSE';
+            const hint = isSubmenu ? 'KEMBALI' : 'CLOSE';
+            const icon = isSubmenu ? 'fa-arrow-left' : 'fa-xmark';
+            const hubs = [
+                { title: 'center-hub-title', icon: 'center-hub-icon-circle', hint: 'center-hub-hint-circle', logo: 'center-hub-logo-circle', arc: false },
+                { title: 'center-hub-title-hexagon', icon: 'center-hub-icon-hexagon', hint: 'center-hub-hint-hexagon', logo: 'center-hub-logo-hexagon', arc: false },
+                { title: 'center-hub-title-arc', icon: 'center-hub-icon-arc', hint: 'center-hub-hint-arc', logo: 'center-hub-logo-arc', arc: true }
+            ];
+            hubs.forEach(hub => {
+                const titleNode = document.getElementById(hub.title);
+                const iconNode = document.getElementById(hub.icon);
+                const hintNode = document.getElementById(hub.hint);
+                const logoNode = document.getElementById(hub.logo);
+                const hasLogo = logoNode && logoNode.dataset.failed !== 'true';
+                if (titleNode) titleNode.textContent = isSubmenu ? (hub.arc ? 'BACK TO MENU' : title) : (hub.arc ? 'CLOSE MENU' : title);
+                if (hintNode) hintNode.textContent = hub.arc ? (isSubmenu ? 'KEMBALI KE MENU' : 'TEKAN [ESC]') : hint;
+                if (logoNode) logoNode.classList.toggle('hidden', isSubmenu || !hasLogo);
+                if (iconNode) {
+                    iconNode.className = `fa-solid ${isSubmenu ? icon : 'fa-xmark'}`;
+                    iconNode.classList.toggle('hidden', !isSubmenu && hasLogo);
+                }
+            });
+        }
+
+        function showMainMenu() {
+            currentMenu = 'main';
+            playSound('select');
+            renderAllMenus();
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                const now = audioCtx.currentTime;
+                if (type === 'hover') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(480, now);
+                    osc.frequency.exponentialRampToValueAtTime(780, now + .04);
+                    gain.gain.setValueAtTime(.02, now);
+                    gain.gain.exponentialRampToValueAtTime(.001, now + .045);
+                    osc.start(now);
+                    osc.stop(now + .045);
+                } else {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(560, now);
+                    osc.frequency.exponentialRampToValueAtTime(1020, now + .08);
+                    gain.gain.setValueAtTime(.065, now);
+                    gain.gain.exponentialRampToValueAtTime(.001, now + .085);
+                    osc.start(now);
+                    osc.stop(now + .085);
+                }
+            } catch (error) {
+                console.warn('Audio FX unavailable:', error);
+            }
+        }
+
+        function emitClientEvent(eventName, ...args) {
+            if (window.cef && typeof window.cef.emit === 'function') {
+                try {
+                    window.cef.emit(eventName, ...args);
+                    return true;
+                } catch (error) {
+                    console.warn(`[RadialMenu] cef.emit failed for "${eventName}":`, error);
+                    return false;
+                }
+            }
+
+            if (window.mp && typeof window.mp.trigger === 'function') {
+                try {
+                    window.mp.trigger(eventName, ...args);
+                    return true;
+                } catch (error) {
+                    console.warn(`[RadialMenu] mp.trigger failed for "${eventName}":`, error);
+                    return false;
+                }
+            }
+
+            console.info(`[RadialMenu] Native bridge not found; local fallback used for "${eventName}".`);
+            return false;
+        }
+
+        function emitRadialCommand(command) {
+            return emitClientEvent('selectRadialItem', command);
+        }
+
+        function executeCommand(item) {
+            if (!item || radialClosed) return;
+            playSound('select');
+            if (item.action === 'open-vehicles') {
+                currentMenu = 'vehicles';
+                renderAllMenus();
+                return;
+            }
+            if (item.action === 'back') {
+                showMainMenu();
+                return;
+            }
+            if (item.cmd === 'SETTING_ACTION') {
+                openSettingsModal();
+                return;
+            }
+            if (item.cmd) {
+                const dispatched = emitRadialCommand(item.cmd);
+                if (!dispatched) {
+                    console.warn(`[RadialMenu] Command "${item.cmd}" was not dispatched; menu remains open.`);
+                }
+                return dispatched;
+            }
+            return false;
+        }
+
+        function bindMenuItemClick(element, item) {
+            element.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                const touchActivation = document.documentElement.classList.contains('touch-input');
+                if ((event.detail !== 0 || touchActivation) && element) {
+                    if (typeof element.blur === 'function') element.blur();
+                    const active = document.activeElement;
+                    if (active && active !== document.body && typeof active.blur === 'function') active.blur();
+                }
+                executeCommand(item);
+            });
+        }
+
+        function handleCenterClick() {
+            if (radialClosed) return;
+            if (currentMenu === 'vehicles') {
+                showMainMenu();
+                return;
+            }
+            playSound('select');
+            closeRadialMenu();
+        }
+
+        function closeRadialMenu() {
+            if (radialClosed) return false;
+            radialClosed = true;
+            currentMenu = 'main';
+
+            const settingsPanel = document.getElementById('inline-settings-panel');
+            if (settingsPanel) {
+                settingsPanel.classList.remove('is-open');
+                settingsPanel.setAttribute('aria-hidden', 'true');
+            }
+
+            document.body.classList.add('radial-menu-closed');
+            return emitClientEvent('closeRadialMenu');
+        }
+
+        function openRadialMenu() {
+            radialClosed = false;
+            currentMenu = 'main';
+            document.body.classList.remove('radial-menu-closed');
+            closeSettingsModal();
+            renderAllMenus();
+        }
+
+        window.RadialMenu = window.RadialMenu || {};
+        window.RadialMenu.open = openRadialMenu;
+        window.RadialMenu.close = closeRadialMenu;
+        window.openRadialMenu = openRadialMenu;
+        window.closeRadialMenu = closeRadialMenu;
+
+        function createArcPath(x, y, innerRadius, outerRadius, startAngle, endAngle) {
+            const startRad = startAngle * Math.PI / 180;
+            const endRad = endAngle * Math.PI / 180;
+            const x1 = x + outerRadius * Math.cos(startRad);
+            const y1 = y + outerRadius * Math.sin(startRad);
+            const x2 = x + outerRadius * Math.cos(endRad);
+            const y2 = y + outerRadius * Math.sin(endRad);
+            const x3 = x + innerRadius * Math.cos(endRad);
+            const y3 = y + innerRadius * Math.sin(endRad);
+            const x4 = x + innerRadius * Math.cos(startRad);
+            const y4 = y + innerRadius * Math.sin(startRad);
+            const largeArcFlag = endAngle - startAngle <= 180 ? 0 : 1;
+            return [
+                `M ${x1} ${y1}`,
+                `A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
+                `L ${x3} ${y3}`,
+                `A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${x4} ${y4}`,
+                'Z'
+            ].join(' ');
+        }
+
+        function makeKeyboardAccessible(element, item) {
+            element.setAttribute('role', 'button');
+            element.setAttribute('tabindex', '0');
+            element.setAttribute('aria-label', item.title);
+            element.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    executeCommand(item);
+                }
+            });
+        }
+
+        function renderCircleMenu() {
+            const group = document.getElementById('circle-slices-group');
+            group.innerHTML = '';
+            const items = getActiveItems();
+            const total = items.length;
+            const outerRadius = 246;
+            const innerRadius = 122;
+            const gapAngle = total >= 8 ? 2.6 : 3.4;
+            const textRadius = (innerRadius + outerRadius) / 2;
+
+            items.forEach((item, index) => {
+                const sliceAngle = 360 / total;
+                const startAngle = index * sliceAngle - 90 + gapAngle / 2;
+                const endAngle = (index + 1) * sliceAngle - 90 - gapAngle / 2;
+                const midAngle = ((startAngle + endAngle) / 2) * Math.PI / 180;
+                const textX = Math.cos(midAngle) * textRadius;
+                const textY = Math.sin(midAngle) * textRadius;
+
+                const groupNode = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                groupNode.setAttribute('class', 'slice-group menu-enter');
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', createArcPath(0, 0, innerRadius, outerRadius, startAngle, endAngle));
+                path.setAttribute('class', 'slice-path');
+
+                const foreign = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+                foreign.setAttribute('x', textX - 50);
+                foreign.setAttribute('y', textY - 34);
+                foreign.setAttribute('width', '100');
+                foreign.setAttribute('height', '68');
+                foreign.setAttribute('class', 'slice-fo');
+                const labelSize = item.title.length > 8 ? '10.5px' : '12px';
+                foreign.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="slice-content"><i class="fa-solid ${item.icon}"></i><span style="font-size:${labelSize}">${item.title}</span></div>`;
+
+                groupNode.appendChild(path);
+                groupNode.appendChild(foreign);
+                groupNode.addEventListener('mouseenter', () => playSound('hover'));
+                bindMenuItemClick(groupNode, item);
+                makeKeyboardAccessible(groupNode, item);
+                group.appendChild(groupNode);
+            });
+        }
+
+        /* ==================== HEXAGON POSITIONING ==================== */
+        // Ukuran node per jumlah item agar cincin heksagon tetap simetris & tidak bertumpuk
+        const HEX_NODE_PERCENT = { 4: 25, 5: 22.5, 6: 22.5, 8: 19.5 };
+
+        function renderHexagonMenu() {
+            const layout = document.getElementById('layout-hexagon');
+            const container = document.getElementById('hex-nodes-container');
+            const linesGroup = document.getElementById('hex-connector-lines');
+            const outerPoly = document.getElementById('hex-outer-polygon');
+            container.innerHTML = '';
+            linesGroup.innerHTML = '';
+
+            const items = getActiveItems();
+            const total = items.length;
+            const nodePercent = HEX_NODE_PERCENT[total] || 19.5;
+
+            layout.classList.remove('hex-count-4', 'hex-count-5', 'hex-count-6');
+            if ([4, 5, 6].includes(total)) layout.classList.add(`hex-count-${total}`);
+
+            // Geometri SVG 540x540 -> persentase agar CSS & garis konektor selalu sejajar
+            const svgCenter = 270;
+            const svgRadius = 190;
+            const radiusPercent = (svgRadius / 540) * 100;
+            const nodeUnits = (nodePercent / 100) * 540;
+            const hubEdge = 80;
+            const lineEnd = Math.max(hubEdge + 18, svgRadius - nodeUnits / 2 - 6);
+            const polyPoints = [];
+
+            items.forEach((item, index) => {
+                const angleDeg = index * (360 / total) - 90;
+                const angle = angleDeg * Math.PI / 180;
+                const cosA = Math.cos(angle);
+                const sinA = Math.sin(angle);
+
+                const svgX = svgCenter + cosA * svgRadius;
+                const svgY = svgCenter + sinA * svgRadius;
+                polyPoints.push(`${svgX.toFixed(1)},${svgY.toFixed(1)}`);
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', (svgCenter + cosA * hubEdge).toFixed(1));
+                line.setAttribute('y1', (svgCenter + sinA * hubEdge).toFixed(1));
+                line.setAttribute('x2', (svgCenter + cosA * lineEnd).toFixed(1));
+                line.setAttribute('y2', (svgCenter + sinA * lineEnd).toFixed(1));
+                line.setAttribute('stroke', 'url(#lineGradient)');
+                line.setAttribute('stroke-width', '2');
+                line.setAttribute('stroke-dasharray', '4 6');
+                line.setAttribute('opacity', '.9');
+                linesGroup.appendChild(line);
+
+                const node = document.createElement('button');
+                node.type = 'button';
+                node.className = 'hex-node';
+                node.style.left = `${(50 + cosA * radiusPercent).toFixed(3)}%`;
+                node.style.top = `${(50 + sinA * radiusPercent).toFixed(3)}%`;
+                node.innerHTML = `<span class="hex-node-inner"><i class="fa-solid ${item.icon}" aria-hidden="true"></i><span>${item.title}</span></span>`;
+                node.addEventListener('mouseenter', () => playSound('hover'));
+                bindMenuItemClick(node, item);
+                node.setAttribute('aria-label', item.title);
+                container.appendChild(node);
+            });
+
+            if (outerPoly) {
+                outerPoly.setAttribute('points', polyPoints.join(' '));
+            }
+        }
+
+        /* ==================== FLOATING DOCK (FLEX + KURVA) ==================== */
+        function getDockLift(index, total, maxLift) {
+            if (total < 3 || maxLift <= 0) return 0;
+            const t = (index / (total - 1)) * 2 - 1;
+            return maxLift * (1 - t * t);
+        }
+
+        function renderArcMenu() {
+            const container = document.getElementById('arc-items-container');
+            container.innerHTML = '';
+
+            const items = getActiveItems();
+            const total = items.length;
+            const viewport = getLogicalViewport();
+            const compact = viewport.width <= 760 || (viewport.height <= 540 && viewport.width <= 1200);
+
+            container.classList.toggle('is-compact', compact);
+            container.classList.toggle('cols-3', compact && total === 6);
+
+            const maxLift = compact ? 0 : Math.round(Math.min(44, Math.max(16, viewport.height * 0.055)));
+            container.style.setProperty('--dock-lift', `${maxLift}px`);
+
+            items.forEach((item, index) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'arc-item';
+                button.style.setProperty('--lift', `${getDockLift(index, total, maxLift).toFixed(1)}px`);
+                button.innerHTML = `<span class="arc-icon"><i class="fa-solid ${item.icon}"></i></span><span class="arc-item-label">${item.title}</span>`;
+                button.addEventListener('mouseenter', () => playSound('hover'));
+                bindMenuItemClick(button, item);
+                button.setAttribute('aria-label', item.title);
+                container.appendChild(button);
+            });
+        }
+
+        function selectShape(shape) {
+            if (!['circle', 'hexagon', 'arc'].includes(shape)) return;
+            currentShape = shape;
+            playSound('select');
+            updateShapeVisibility();
+            updateSettingsUI();
+            if (shape === 'arc') renderArcMenu();
+            if (shape === 'hexagon') renderHexagonMenu();
+        }
+
+        function updateShapeVisibility() {
+            const layouts = {
+                circle: document.getElementById('layout-circle'),
+                hexagon: document.getElementById('layout-hexagon'),
+                arc: document.getElementById('layout-arc')
+            };
+            Object.entries(layouts).forEach(([shape, element]) => {
+                element.classList.toggle('hidden', shape !== currentShape);
+                if (shape === currentShape) {
+                    element.classList.remove('menu-enter');
+                    void element.offsetWidth;
+                    element.classList.add('menu-enter');
+                }
+            });
+        }
+
+        function updateSettingsUI() {
+            ['circle', 'hexagon', 'arc'].forEach(shape => {
+                const option = document.getElementById(`opt-shape-${shape}`);
+                const indicator = option.querySelector('.status-indicator');
+                option.classList.toggle('active', shape === currentShape);
+                indicator.classList.toggle('hidden', shape !== currentShape);
+            });
+        }
+
+        function openSettingsModal() {
+            const modal = document.getElementById('inline-settings-panel');
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            updateSettingsUI();
+        }
+
+        function closeSettingsModal() {
+            const modal = document.getElementById('inline-settings-panel');
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const button = document.getElementById('btn-audio-toggle');
+            button.textContent = soundEnabled ? 'ON' : 'OFF';
+            button.classList.toggle('off', !soundEnabled);
+            if (soundEnabled) playSound('select');
+        }
+
+        function setupInputModality() {
+            const root = document.documentElement;
+            const setTouchMode = () => {
+                root.classList.add('touch-input');
+                root.classList.remove('keyboard-navigation');
+            };
+            const setPointerMode = () => {
+                root.classList.remove('touch-input', 'keyboard-navigation');
+            };
+            const setKeyboardMode = event => {
+                if (['Tab', 'Enter', ' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+                    root.classList.add('keyboard-navigation');
+                    root.classList.remove('touch-input');
+                }
+            };
+
+            if (window.PointerEvent) {
+                document.addEventListener('pointerdown', event => {
+                    if (event.pointerType === 'touch' || event.pointerType === 'pen') setTouchMode();
+                    else if (event.pointerType === 'mouse') setPointerMode();
+                }, true);
+            }
+            document.addEventListener('touchstart', setTouchMode, { passive: true, capture: true });
+            document.addEventListener('mousedown', setPointerMode, true);
+            document.addEventListener('keydown', setKeyboardMode, true);
+        }
+
+        function setupKeyListeners() {
+            window.addEventListener('keydown', event => {
+                if (radialClosed) return;
+                const modal = document.getElementById('inline-settings-panel');
+                const modalOpen = modal && modal.classList.contains('is-open');
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    if (modalOpen) closeSettingsModal();
+                    else handleCenterClick();
+                    return;
+                }
+                if (modalOpen) return;
+                if (event.key === 'Tab') {
+                    event.preventDefault();
+                    const shapes = ['circle', 'hexagon', 'arc'];
+                    selectShape(shapes[(shapes.indexOf(currentShape) + 1) % shapes.length]);
+                    return;
+                }
+                if (/^[1-9]$/.test(event.key)) {
+                    const item = getActiveItems()[Number(event.key) - 1];
+                    if (item) executeCommand(item);
+                }
+            });
+        }
+
+        initializeCenterLogos();
+        setupInputModality();
+        renderAllMenus();
+        setupKeyListeners();
+
+        let resizeFrame = null;
+        function refreshResponsiveMenus() {
+            if (resizeFrame) cancelAnimationFrame(resizeFrame);
+            document.body.classList.add('is-resizing');
+            resizeFrame = requestAnimationFrame(() => {
+                renderAllMenus();
+                requestAnimationFrame(() => document.body.classList.remove('is-resizing'));
+                resizeFrame = null;
+            });
+        }
+        window.addEventListener('resize', refreshResponsiveMenus, { passive: true });
+        window.addEventListener('orientationchange', refreshResponsiveMenus, { passive: true });
+        window.addEventListener('pageshow', refreshResponsiveMenus, { passive: true });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', refreshResponsiveMenus, { passive: true });
+        }
+
+        /* ==================== UKURAN MENU RADIAL ==================== */
+        const MENU_SCALE_KEY = 'radial-menu-scale';
+        const MENU_SCALE_MIN = 0.6;
+        const MENU_SCALE_MAX = 1.15;
+        const DEFAULT_MENU_SCALE = 0.9;
+        let menuScale = DEFAULT_MENU_SCALE;
+
+        try {
+            const savedScale = parseFloat(localStorage.getItem(MENU_SCALE_KEY));
+            if (savedScale > 0) menuScale = savedScale;
+        } catch (error) {
+            console.info('[RadialMenu] Ukuran menu memakai default.');
+        }
+
+        function applyMenuScale(scale) {
+            const value = Math.min(MENU_SCALE_MAX, Math.max(MENU_SCALE_MIN, Number(scale) || DEFAULT_MENU_SCALE));
+            menuScale = value;
+            document.documentElement.style.setProperty('--menu-scale', value);
+            const label = document.getElementById('menu-size-value');
+            if (label) label.textContent = Math.round(value * 100) + '%';
+            const range = document.getElementById('menu-size-range');
+            if (range) range.value = String(Math.round(value * 100));
+            return value;
+        }
+
+        function setMenuScale(scale) {
+            const value = applyMenuScale(scale);
+            try {
+                localStorage.setItem(MENU_SCALE_KEY, String(value));
+            } catch (error) { /* diabaikan */ }
+            emitClientEvent('setMenuScale', value.toFixed(2));
+        }
+
+        function resetMenuScale() {
+            setMenuScale(DEFAULT_MENU_SCALE);
+        }
+
+        window.setMenuScale = setMenuScale;
+        window.resetMenuScale = resetMenuScale;
+        applyMenuScale(menuScale);
+    </script>
+
+    <script>
+        /* ==================== SPEEDOMETER HUD ==================== */
+        (function () {
+            'use strict';
+
+            const layer = document.getElementById('speedo-layer');
+            if (!layer) return;
+
+            const STORAGE_KEY = 'radial-speedometer-settings';
+            const DEFAULTS = { style: 'twopod', position: 'bottom-right', dx: 0, dy: 0, scale: 1 };
+            const SCALE_MIN = 0.6;
+            const SCALE_MAX = 2.2;
+            const POSITIONS = ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
+            let cfg = Object.assign({}, DEFAULTS);
+
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const saved = JSON.parse(raw);
+                    if (saved && typeof saved === 'object') {
+                        if (['twopod', 'onepod', 'off'].includes(saved.style)) cfg.style = saved.style;
+                        if (POSITIONS.includes(saved.position)) cfg.position = saved.position;
+                        cfg.dx = Number(saved.dx) || 0;
+                        cfg.dy = Number(saved.dy) || 0;
+                        cfg.scale = Math.min(SCALE_MAX, Math.max(SCALE_MIN, Number(saved.scale) || 1));
+                    }
+                }
+            } catch (error) {
+                console.info('[Speedometer] Penyimpanan lokal tidak tersedia, memakai setelan default.');
+            }
+
+            const state = {
+                speed: 0, rpm: 800, gear: 'P', fuel: 85, health: 100,
+                engine: false, lights: false, seatbelt: false, locked: false,
+                handbrake: true, signalLeft: false, signalRight: false
+            };
+            const MAX_SPEED = 300;
+            const MAX_RPM = 8000;
+            const TP_C = { circ: 502.65, active: 335.10 };
+            const OP_C = { speed: 911.1, rpm: 810.5, aux: 1017.9 };
+            const $ = id => document.getElementById(id);
+            const clamp = (value, min, max) => Math.min(Math.max(Number(value) || 0, min), max);
+            const setStatus = (node, on, warn = false) => {
+                if (node) node.className = 'status-icon' + (warn ? ' warn' : on ? ' on' : '');
+            };
+
+            /* ---------- Referensi elemen Two-Pod ---------- */
+            const tp = {
+                housing: $('tp-housingBezel'),
+                speed: $('tp-speedValue'), speedArc: $('tp-speedArc'),
+                rpm: $('tp-rpmValue'), rpmArc: $('tp-rpmArc'), gear: $('tp-gearValue'),
+                needleSpeed: $('tp-needleSpeed'), needleRpm: $('tp-needleRpm'),
+                healthFill: $('tp-healthFill'), healthText: $('tp-healthText'),
+                fuelFill: $('tp-fuelFill'), fuelText: $('tp-fuelText'),
+                healthBadge: $('tp-healthBadge'), fuelBadge: $('tp-fuelBadge'), shiftBar: $('tp-shiftBar'),
+                engine: $('tp-iconEngine'), lights: $('tp-iconLights'), belt: $('tp-iconSeatbelt'),
+                lock: $('tp-iconLock'), brake: $('tp-iconHandbrake'),
+                left: $('tp-signalLeft'), right: $('tp-signalRight')
+            };
+
+            /* ---------- Referensi elemen One-Pod ---------- */
+            const op = {
+                housing: $('op-housingBezel'),
+                speed: $('op-speedValue'), speedArc: $('op-speedArc'),
+                rpm: $('op-rpmValue'), rpmArc: $('op-rpmArc'), gear: $('op-gearDisplay'),
+                needle: $('op-needleGroup'),
+                healthArc: $('op-healthArc'), healthText: $('op-healthText'),
+                fuelArc: $('op-fuelArc'), fuelText: $('op-fuelText'),
+                healthBadge: $('op-healthBadge'), fuelBadge: $('op-fuelBadge'),
+                engine: $('op-iconEngine'), lights: $('op-iconLights'), belt: $('op-iconSeatbelt'),
+                lock: $('op-iconLock'), brake: $('op-iconHandbrake'),
+                left: $('op-signalLeft'), right: $('op-signalRight')
+            };
+
+            /* ---------- Skala Two-Pod ---------- */
+            const shiftLeds = [];
+            if (tp.shiftBar) {
+                for (let i = 0; i < 9; i++) {
+                    const led = document.createElement('div');
+                    led.className = 'shift-led';
+                    tp.shiftBar.appendChild(led);
+                    shiftLeds.push(led);
+                }
+            }
+
+            function buildTicks(container, cx, cy, rOut, count, redFrom, labelEvery, labelStep) {
+                if (!container) return;
+                const svgNS = 'http://www.w3.org/2000/svg';
+                for (let i = 0; i <= count; i++) {
+                    const angle = (-210 + i * (240 / count)) * Math.PI / 180;
+                    const major = i % 2 === 0;
+                    const rIn = major ? rOut - 9 : rOut - 5;
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('class', 'tick');
+                    line.setAttribute('x1', (cx + Math.cos(angle) * rIn).toFixed(2));
+                    line.setAttribute('y1', (cy + Math.sin(angle) * rIn).toFixed(2));
+                    line.setAttribute('x2', (cx + Math.cos(angle) * rOut).toFixed(2));
+                    line.setAttribute('y2', (cy + Math.sin(angle) * rOut).toFixed(2));
+                    line.setAttribute('stroke', i >= redFrom ? '#ff405b' : (major ? '#ffffff' : '#6f7480'));
+                    line.setAttribute('stroke-width', major ? 2.3 : 1.2);
+                    line.setAttribute('opacity', major ? '1' : '.8');
+                    container.appendChild(line);
+
+                    if (major && i % labelEvery === 0) {
+                        const rTxt = rOut - 21;
+                        const text = document.createElementNS(svgNS, 'text');
+                        text.setAttribute('class', 'scale-num' + (i >= redFrom ? ' red' : ''));
+                        text.setAttribute('x', (cx + Math.cos(angle) * rTxt).toFixed(2));
+                        text.setAttribute('y', (cy + Math.sin(angle) * rTxt + 3.4).toFixed(2));
+                        text.textContent = Math.round((i / count) * labelStep);
+                        container.appendChild(text);
+                    }
+                }
+            }
+
+            buildTicks($('tp-ticksSpeed'), 128, 126, 70, 12, 10, 2, 300);
+            buildTicks($('tp-ticksRpm'), 352, 126, 70, 16, 13, 2, 8);
+
+            /* ---------- Skala One-Pod ---------- */
+            (function buildOnePodTicks() {
+                const container = $('op-ticks');
+                if (!container) return;
+                const svgNS = 'http://www.w3.org/2000/svg';
+                for (let i = 0; i <= 12; i++) {
+                    const angle = (-122 + i * (244 / 12)) * Math.PI / 180;
+                    const major = i % 2 === 0;
+                    const r1 = major ? 135 : 139;
+                    const r2 = 145;
+                    const line = document.createElementNS(svgNS, 'line');
+                    line.setAttribute('x1', 175 + Math.cos(angle) * r1);
+                    line.setAttribute('y1', 175 + Math.sin(angle) * r1);
+                    line.setAttribute('x2', 175 + Math.cos(angle) * r2);
+                    line.setAttribute('y2', 175 + Math.sin(angle) * r2);
+                    line.setAttribute('stroke', i >= 10 ? '#ff405b' : (major ? '#ffffff' : '#7d808a'));
+                    line.setAttribute('stroke-width', major ? 2.6 : 1.4);
+                    line.setAttribute('stroke-linecap', 'round');
+                    container.appendChild(line);
+                }
+            })();
+
+            /* ---------- Render ---------- */
+            function renderTwoPod() {
+                const speed = clamp(state.speed, 0, MAX_SPEED);
+                const rpm = clamp(state.rpm, 0, MAX_RPM);
+                const fuel = clamp(state.fuel, 0, 100);
+                const health = clamp(state.health, 0, 100);
+
+                if (tp.speed) tp.speed.textContent = Math.round(speed);
+                if (tp.speedArc) tp.speedArc.style.strokeDashoffset = TP_C.circ - (speed / MAX_SPEED * TP_C.active);
+                if (tp.needleSpeed) tp.needleSpeed.style.transform = `rotate(${-120 + (speed / MAX_SPEED * 240)}deg)`;
+
+                if (tp.rpm) tp.rpm.textContent = Math.round(rpm);
+                if (tp.rpmArc) tp.rpmArc.style.strokeDashoffset = TP_C.circ - (rpm / MAX_RPM * TP_C.active);
+                if (tp.needleRpm) tp.needleRpm.style.transform = `rotate(${-120 + (rpm / MAX_RPM * 240)}deg)`;
+                if (tp.housing) tp.housing.classList.toggle('shift-halo', rpm >= 7000);
+
+                const activeLeds = rpm > 4500 ? Math.round(((rpm - 4500) / (MAX_RPM - 4500)) * shiftLeds.length) : 0;
+                shiftLeds.forEach((led, index) => {
+                    led.className = index < activeLeds ? 'shift-led on ' + (index < 5 ? 'w' : 'r') : 'shift-led';
+                });
+
+                if (state.engine) {
+                    if (state.handbrake && speed === 0) state.gear = 'P';
+                    else if (state.gear !== 'R' && state.gear !== 'N') state.gear = speed < 35 ? '1' : speed < 70 ? '2' : speed < 120 ? '3' : speed < 170 ? '4' : speed < 230 ? '5' : '6';
+                } else state.gear = 'P';
+                if (tp.gear) tp.gear.textContent = String(state.gear ?? 'P').slice(0, 3);
+
+                if (tp.healthText) tp.healthText.textContent = Math.round(health) + '%';
+                if (tp.healthFill) tp.healthFill.style.width = health + '%';
+                if (tp.healthBadge) tp.healthBadge.classList.toggle('low', health <= 30);
+
+                if (tp.fuelText) tp.fuelText.textContent = Math.round(fuel) + '%';
+                if (tp.fuelFill) tp.fuelFill.style.width = fuel + '%';
+                if (tp.fuelBadge) tp.fuelBadge.classList.toggle('low', fuel <= 15);
+
+                setStatus(tp.engine, state.engine);
+                setStatus(tp.lights, state.lights);
+                setStatus(tp.belt, state.seatbelt, !state.seatbelt);
+                setStatus(tp.lock, state.locked);
+                setStatus(tp.brake, state.handbrake, state.handbrake);
+                if (tp.left) tp.left.classList.toggle('signal-active', !!state.signalLeft);
+                if (tp.right) tp.right.classList.toggle('signal-active', !!state.signalRight);
+            }
+
+            function renderOnePod() {
+                const speed = clamp(state.speed, 0, MAX_SPEED);
+                const rpm = clamp(state.rpm, 0, MAX_RPM);
+                const fuel = clamp(state.fuel, 0, 100);
+                const health = clamp(state.health, 0, 100);
+
+                if (op.speed) op.speed.textContent = Math.round(speed);
+                if (op.speedArc) op.speedArc.style.strokeDashoffset = OP_C.speed - (speed / MAX_SPEED * 620);
+                if (op.needle) op.needle.style.transform = `rotate(${-122 + (speed / MAX_SPEED * 244)}deg)`;
+
+                if (op.rpm) op.rpm.textContent = Math.round(rpm);
+                if (op.rpmArc) op.rpmArc.style.strokeDashoffset = OP_C.rpm - (rpm / MAX_RPM * 551);
+                if (op.housing) op.housing.classList.toggle('shift-halo', rpm >= 7000);
+
+                if (state.engine) {
+                    if (state.handbrake && speed === 0) state.gear = 'P';
+                    else if (state.gear !== 'R' && state.gear !== 'N') state.gear = speed < 35 ? '1' : speed < 70 ? '2' : speed < 120 ? '3' : speed < 170 ? '4' : speed < 230 ? '5' : '6';
+                } else state.gear = 'P';
+                if (op.gear) op.gear.textContent = String(state.gear ?? 'P').slice(0, 3);
+
+                if (op.healthText) op.healthText.textContent = Math.round(health) + '%';
+                if (op.healthArc) op.healthArc.style.strokeDashoffset = OP_C.aux - (health / 100 * 104);
+                if (op.healthBadge) op.healthBadge.classList.toggle('low', health <= 30);
+
+                if (op.fuelText) op.fuelText.textContent = Math.round(fuel) + '%';
+                if (op.fuelArc) op.fuelArc.style.strokeDashoffset = OP_C.aux - (fuel / 100 * 104);
+                if (op.fuelBadge) op.fuelBadge.classList.toggle('low', fuel <= 15);
+
+                setStatus(op.engine, state.engine);
+                setStatus(op.lights, state.lights);
+                setStatus(op.belt, state.seatbelt, !state.seatbelt);
+                setStatus(op.lock, state.locked);
+                setStatus(op.brake, state.handbrake, state.handbrake);
+                if (op.left) op.left.classList.toggle('signal-active', !!state.signalLeft);
+                if (op.right) op.right.classList.toggle('signal-active', !!state.signalRight);
+            }
+
+            function renderSpeedometer() {
+                renderTwoPod();
+                renderOnePod();
+            }
+
+            window.updateSpeedometer = function (data) {
+                if (!data || typeof data !== 'object') return;
+                const allowed = ['speed', 'rpm', 'gear', 'fuel', 'health', 'engine', 'lights', 'seatbelt', 'locked', 'handbrake', 'signalLeft', 'signalRight'];
+                for (const key of allowed) {
+                    if (Object.prototype.hasOwnProperty.call(data, key)) state[key] = data[key];
+                }
+                renderSpeedometer();
+            };
+
+            /* ---------- Setelan & posisi ---------- */
+            function activeVariant() {
+                return cfg.style === 'onepod' ? $('speedo-onepod') : $('speedo-twopod');
+            }
+
+            // Batas ukuran agar HUD selalu muat di layar (dasar perhitungan: ukuran asli sebelum diskalakan)
+            function maxScaleForViewport(element) {
+                const target = element || activeVariant();
+                if (!target) return SCALE_MAX;
+                const width = target.offsetWidth || 1;
+                const height = target.offsetHeight || 1;
+                const fit = Math.min((window.innerWidth - 16) / width, (window.innerHeight - 16) / height);
+                return Math.max(SCALE_MIN, Math.min(SCALE_MAX, fit));
+            }
+
+            function applyOffset() {
+                layer.style.setProperty('--sp-dx', cfg.dx + 'px');
+                layer.style.setProperty('--sp-dy', cfg.dy + 'px');
+                layer.style.setProperty('--sp-scale', cfg.scale);
+            }
+
+            function clampOffset() {
+                if (cfg.style === 'off') return;
+                const element = activeVariant();
+                if (!element) return;
+                const pad = 8;
+                for (let pass = 0; pass < 3; pass++) {
+                    const rect = element.getBoundingClientRect();
+                    if (rect.width > window.innerWidth - pad * 2 || rect.height > window.innerHeight - pad * 2) return;
+                    let adjustX = 0;
+                    let adjustY = 0;
+                    if (rect.left < pad) adjustX = pad - rect.left;
+                    else if (rect.right > window.innerWidth - pad) adjustX = (window.innerWidth - pad) - rect.right;
+                    if (rect.top < pad) adjustY = pad - rect.top;
+                    else if (rect.bottom > window.innerHeight - pad) adjustY = (window.innerHeight - pad) - rect.bottom;
+                    if (!adjustX && !adjustY) break;
+                    cfg.dx = Math.round(cfg.dx + adjustX);
+                    cfg.dy = Math.round(cfg.dy + adjustY);
+                    applyOffset();
+                }
+            }
+
+            function emitSettings() {
+                const payload = { style: cfg.style, position: cfg.position, dx: cfg.dx, dy: cfg.dy, scale: Number(cfg.scale.toFixed(2)) };
+                try {
+                    if (typeof emitClientEvent === 'function') {
+                        emitClientEvent('setSpeedometerSettings', JSON.stringify(payload));
+                    }
+                } catch (error) {
+                    console.info('[Speedometer] Bridge belum tersedia.');
+                }
+                window.dispatchEvent(new CustomEvent('speedometerSettingsChanged', { detail: payload }));
+            }
+
+            function saveSettings() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(cfg));
+                } catch (error) { /* diabaikan */ }
+                emitSettings();
+            }
+
+            function applySettings() {
+                layer.dataset.pos = cfg.position;
+                layer.classList.toggle('sp-off', cfg.style === 'off');
+                $('speedo-twopod').classList.toggle('is-active', cfg.style === 'twopod');
+                $('speedo-onepod').classList.toggle('is-active', cfg.style === 'onepod');
+                setScale(cfg.scale);
+                applyOffset();
+                if (cfg.style !== 'off') clampOffset();
+                updateSettingsUI();
+            }
+
+            function updateSettingsUI() {
+                ['twopod', 'onepod', 'off'].forEach(style => {
+                    const chip = $('opt-speedo-' + style);
+                    if (chip) chip.classList.toggle('active', cfg.style === style);
+                });
+                document.querySelectorAll('.spu-pos').forEach(button => {
+                    button.classList.toggle('active', button.dataset.pos === cfg.position);
+                });
+                const hudValue = $('hud-size-value');
+                const hudRange = $('hud-size-range');
+                const percent = Math.round(cfg.scale * 100);
+                if (hudValue) hudValue.textContent = percent + '%';
+                if (hudRange && document.activeElement !== hudRange) hudRange.value = String(percent);
+
+                const dragButton = $('btn-speedo-drag');
+                if (dragButton) {
+                    const dragging = layer.classList.contains('is-dragging');
+                    dragButton.textContent = dragging ? 'SELESAI' : 'GESER';
+                    dragButton.classList.toggle('off', !dragging);
+                    dragButton.disabled = cfg.style === 'off';
+                }
+            }
+
+            window.setSpeedoStyle = function (style) {
+                if (!['twopod', 'onepod', 'off'].includes(style)) return;
+                cfg.style = style;
+                if (style === 'off') layer.classList.remove('is-dragging');
+                applySettings();
+                renderSpeedometer();
+                saveSettings();
+            };
+
+            window.setSpeedoPosition = function (position) {
+                if (!POSITIONS.includes(position)) return;
+                cfg.position = position;
+                cfg.dx = 0;
+                cfg.dy = 0;
+                applySettings();
+                saveSettings();
+            };
+
+            window.toggleSpeedoDrag = function () {
+                if (cfg.style === 'off') return;
+                layer.classList.toggle('is-dragging');
+                if (!layer.classList.contains('is-dragging')) resetGesture();
+                updateSettingsUI();
+            };
+
+            // Ubah ukuran HUD langsung dari Settings
+            window.setHudScale = function (percent) {
+                setScale(Number(percent) / 100);
+                applyOffset();
+                clampOffset();
+                saveSettings();
+                updateSettingsUI();
+            };
+
+            window.resetSpeedoOffset = function () {
+                cfg.dx = 0;
+                cfg.dy = 0;
+                cfg.scale = 1;
+                applySettings();
+                saveSettings();
+            };
+
+            /* ---------- Geser bebas + ubah ukuran (drag / pinch / pegangan sudut) ---------- */
+            const pointers = new Map();
+            let drag = null;
+            let pinch = null;
+            let rafId = null;
+
+            function setScale(value) {
+                const limit = maxScaleForViewport();
+                cfg.scale = Math.min(limit, Math.max(SCALE_MIN, Number(value) || 1));
+                layer.style.setProperty('--sp-scale', cfg.scale);
+            }
+
+            // Terapkan perubahan lewat requestAnimationFrame agar geseran tetap mulus di layar sentuh
+            function applyLive() {
+                if (rafId) return;
+                rafId = requestAnimationFrame(() => {
+                    rafId = null;
+                    applyOffset();
+                });
+            }
+
+            function variantCenter(element) {
+                const rect = element.getBoundingClientRect();
+                return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+            }
+
+            function startPinch() {
+                const [first, second] = [...pointers.values()];
+                pinch = {
+                    distance: Math.max(1, Math.hypot(first.x - second.x, first.y - second.y)),
+                    scale: cfg.scale
+                };
+                drag = null;
+            }
+
+            function startSingle(id, x, y, onHandle, element) {
+                pinch = null;
+                const target = element || activeVariant();
+                if (!target) return;
+                if (onHandle) {
+                    const rect = target.getBoundingClientRect();
+                    const center = variantCenter(target);
+                    drag = {
+                        id,
+                        mode: 'resize',
+                        centerX: center.x,
+                        centerY: center.y,
+                        startDist: Math.max(24, Math.hypot(x - center.x, y - center.y)),
+                        startScale: cfg.scale,
+                        startWidth: rect.width,
+                        startHeight: rect.height,
+                        baseX: cfg.dx,
+                        baseY: cfg.dy
+                    };
+                } else {
+                    drag = { id, mode: 'move', startX: x, startY: y, baseX: cfg.dx, baseY: cfg.dy };
+                }
+            }
+
+            function resetGesture() {
+                pointers.clear();
+                drag = null;
+                pinch = null;
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+            }
+
+            layer.addEventListener('pointerdown', event => {
+                if (!layer.classList.contains('is-dragging')) return;
+                const element = activeVariant();
+                if (!element || !element.contains(event.target)) return;
+
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+                try { element.setPointerCapture(event.pointerId); } catch (error) { /* diabaikan */ }
+                event.preventDefault();
+
+                const onHandle = !!(event.target.closest && event.target.closest('.speedo-resize-handle'));
+                if (pointers.size >= 2) startPinch();
+                else startSingle(event.pointerId, event.clientX, event.clientY, onHandle, element);
+            });
+
+            layer.addEventListener('pointermove', event => {
+                if (!pointers.has(event.pointerId)) return;
+                pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+                event.preventDefault();
+
+                if (pinch && pointers.size >= 2) {
+                    const [first, second] = [...pointers.values()];
+                    const distance = Math.max(1, Math.hypot(first.x - second.x, first.y - second.y));
+                    setScale(pinch.scale * (distance / pinch.distance));
+                    applyLive();
+                    return;
+                }
+
+                if (!drag || drag.id !== event.pointerId) return;
+
+                if (drag.mode === 'resize') {
+                    const distance = Math.hypot(event.clientX - drag.centerX, event.clientY - drag.centerY);
+                    setScale(drag.startScale * (distance / drag.startDist));
+                    // Pertahankan pojok kiri-atas agar HUD tidak "kabur" saat dibesarkan/dikecilkan
+                    const ratio = cfg.scale / (drag.startScale || 1);
+                    cfg.dx = drag.baseX + (drag.startWidth * (ratio - 1)) / 2;
+                    cfg.dy = drag.baseY + (drag.startHeight * (ratio - 1)) / 2;
+                } else {
+                    cfg.dx = drag.baseX + (event.clientX - drag.startX);
+                    cfg.dy = drag.baseY + (event.clientY - drag.startY);
+                }
+                applyLive();
+            });
+
+            function finishGesture() {
+                pinch = null;
+                drag = null;
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = null;
+                }
+                cfg.dx = Math.round(cfg.dx);
+                cfg.dy = Math.round(cfg.dy);
+                applyOffset();
+                clampOffset();
+                saveSettings();
+            }
+
+            function endPointer(event) {
+                if (!pointers.has(event.pointerId)) return;
+                pointers.delete(event.pointerId);
+                if (drag && drag.id === event.pointerId) drag = null;
+
+                if (pointers.size >= 2) {
+                    startPinch();
+                    return;
+                }
+                if (pointers.size === 1) {
+                    // Jari yang masih menempel bisa langsung melanjutkan geser
+                    const [id, point] = [...pointers.entries()][0];
+                    startSingle(id, point.x, point.y, false, activeVariant());
+                    return;
+                }
+                finishGesture();
+            }
+
+            // Dengarkan di window agar lepas jari di luar HUD tetap tercatat
+            window.addEventListener('pointerup', endPointer);
+            window.addEventListener('pointercancel', endPointer);
+            window.addEventListener('blur', () => { if (pointers.size) { resetGesture(); } });
+
+            /* ---------- Pratinjau data kendaraan ---------- */
+            const previewEnabled = new URLSearchParams(location.search).get('preview') !== '0';
+            if (previewEnabled) {
+                window.addEventListener('keydown', event => {
+                    const key = event.key.toLowerCase();
+                    if (key === 'arrowup') {
+                        state.engine = true;
+                        state.handbrake = false;
+                        state.speed = clamp(state.speed + 4, 0, MAX_SPEED);
+                        state.rpm = clamp(1200 + (state.speed % 50) * 150, 0, MAX_RPM);
+                    } else if (key === 'arrowdown') {
+                        state.speed = clamp(state.speed - 6, 0, MAX_SPEED);
+                        state.rpm = clamp(state.rpm - 200, 800, MAX_RPM);
+                    } else if (key === 'e') state.engine = !state.engine;
+                    else if (key === 'l') state.lights = !state.lights;
+                    else if (key === 'b') state.seatbelt = !state.seatbelt;
+                    else if (key === 'k') state.locked = !state.locked;
+                    else if (key === 'h') state.handbrake = !state.handbrake;
+                    else if (key === 'arrowleft') { state.signalLeft = !state.signalLeft; state.signalRight = false; }
+                    else if (key === 'arrowright') { state.signalRight = !state.signalRight; state.signalLeft = false; }
+                    else return;
+                    renderSpeedometer();
+                });
+            }
+
+            function handleViewportChange() {
+                setScale(cfg.scale);
+                clampOffset();
+            }
+            window.addEventListener('resize', handleViewportChange, { passive: true });
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', handleViewportChange, { passive: true });
+            }
+
+            applySettings();
+            renderSpeedometer();
+        })();
+    </script>
 </body>
 </html>
