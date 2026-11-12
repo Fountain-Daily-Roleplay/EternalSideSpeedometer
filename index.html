@@ -639,7 +639,8 @@
             display: none;
             position: relative;
             flex: 0 0 auto;
-            transform: translate(var(--sp-dx, 0px), var(--sp-dy, 0px));
+            transform: translate(var(--sp-dx, 0px), var(--sp-dy, 0px)) scale(var(--sp-scale, 1));
+            transform-origin: center;
         }
         .speedo-variant.is-active { display: block; }
         #speedo-layer.is-dragging .speedo-variant {
@@ -1107,6 +1108,7 @@
         }
         /* Integrated deployment modes: use ?mode=radial or ?mode=speedometer. */
         body[data-ui-mode="radial"] #speedo-layer { display: none !important; }
+        body[data-ui-mode="radial"] #speedo-layer.speedo-settings-preview { display: flex !important; }
         body[data-ui-mode="speedometer"] main,
         body[data-ui-mode="speedometer"] .hud-overlay,
         body[data-ui-mode="speedometer"] .hud-grid,
@@ -1122,7 +1124,7 @@
             else applyMode();
         })();
     </script></head>
-<body class="radial-menu-closed">
+<body>
     <div class="hud-overlay"></div>
     <div class="hud-grid"></div>
 
@@ -1481,7 +1483,10 @@
                     <button type="button" class="spu-pos" data-pos="bottom-center" onclick="setSpeedoPosition('bottom-center')" aria-label="Tengah bawah"></button>
                     <button type="button" class="spu-pos" data-pos="bottom-right" onclick="setSpeedoPosition('bottom-right')" aria-label="Kanan bawah"></button>
                 </div>
-                <div class="mt-3 flex items-center justify-between gap-3">
+                <div class="mb-2 mt-4 flex items-center justify-between text-[10px] font-extrabold tracking-[.16em] text-white/50">
+                    <span>UKURAN HUD</span><output id="speedo-size-value">100%</output>
+                </div>
+                <input id="speedo-size" type="range" min="60" max="140" step="5" value="100" oninput="setSpeedoScale(this.value / 100)" class="w-full accent-red-500" aria-label="Ukuran speedometer">                <div class="mt-3 flex items-center justify-between gap-3">
                     <span class="text-[10px] font-medium leading-tight text-white/45">Aktifkan GESER lalu tarik HUD untuk mengatur posisi bebas.</span>
                     <button type="button" onclick="resetSpeedoOffset()" class="settings-toggle off px-3">RESET</button>
                 </div>
@@ -1737,6 +1742,7 @@
                 console.warn('[RadialMenu] radial_open listener unavailable:', error);
             }
         }
+
 
         function createArcPath(x, y, innerRadius, outerRadius, startAngle, endAngle) {
             const startRad = startAngle * Math.PI / 180;
@@ -2055,7 +2061,7 @@
             if (!layer) return;
 
             const STORAGE_KEY = 'radial-speedometer-settings';
-            const DEFAULTS = { style: 'twopod', position: 'bottom-right', dx: 0, dy: 0 };
+            const DEFAULTS = { style: 'twopod', position: 'bottom-right', dx: 0, dy: 0, scale: 1 };
             const POSITIONS = ['top-left', 'top-center', 'top-right', 'middle-left', 'middle-center', 'middle-right', 'bottom-left', 'bottom-center', 'bottom-right'];
             let cfg = Object.assign({}, DEFAULTS);
 
@@ -2068,6 +2074,7 @@
                         if (POSITIONS.includes(saved.position)) cfg.position = saved.position;
                         cfg.dx = Number(saved.dx) || 0;
                         cfg.dy = Number(saved.dy) || 0;
+                        cfg.scale = Math.min(Math.max(Number(saved.scale) || 1, .6), 1.4);
                     }
                 }
             } catch (error) {
@@ -2286,6 +2293,7 @@
             function applyOffset() {
                 layer.style.setProperty('--sp-dx', cfg.dx + 'px');
                 layer.style.setProperty('--sp-dy', cfg.dy + 'px');
+                layer.style.setProperty('--sp-scale', cfg.scale);
             }
 
             function clampOffset() {
@@ -2312,7 +2320,7 @@
 
             function emitSettings() {
                 if (applyingRemoteSettings) return;
-                const payload = { style: cfg.style, position: cfg.position, dx: cfg.dx, dy: cfg.dy };
+                const payload = { style: cfg.style, position: cfg.position, scale: cfg.scale, dx: cfg.dx, dy: cfg.dy };
                 try {
                     if (typeof emitClientEvent === 'function') {
                         emitClientEvent('setSpeedometerSettings', JSON.stringify(payload));
@@ -2347,6 +2355,10 @@
                 });
                 document.querySelectorAll('.spu-pos').forEach(button => {
                     button.classList.toggle('active', button.dataset.pos === cfg.position);
+                const sizeInput = speedo-size;
+                const sizeValue = speedo-size-value;
+                if (sizeInput) sizeInput.value = Math.round(cfg.scale * 100);
+                if (sizeValue) sizeValue.textContent = Math.round(cfg.scale * 100) + '%';
                 });
                 const dragButton = $('btn-speedo-drag');
                 if (dragButton) {
@@ -2363,6 +2375,7 @@
                 try {
                     if (['twopod', 'onepod', 'off'].includes(data.style)) cfg.style = data.style;
                     if (POSITIONS.includes(data.position)) cfg.position = data.position;
+                    if (Number.isFinite(Number(data.scale))) cfg.scale = Math.min(Math.max(Number(data.scale), .6), 1.4);
                     if (Number.isFinite(Number(data.dx))) cfg.dx = Number(data.dx);
                     if (Number.isFinite(Number(data.dy))) cfg.dy = Number(data.dy);
                     if (cfg.style === 'off') layer.classList.remove('is-dragging');
@@ -2371,6 +2384,14 @@
                 } finally {
                     applyingRemoteSettings = false;
                 }
+            };
+            window.setSpeedoScale = function (scale) {
+                const next = Number(scale);
+                if (!Number.isFinite(next)) return;
+                cfg.scale = Math.min(Math.max(next, .6), 1.4);
+                applySettings();
+                renderSpeedometer();
+                saveSettings();
             };
             window.setSpeedoStyle = function (style) {
                 if (!['twopod', 'onepod', 'off'].includes(style)) return;
@@ -2392,7 +2413,9 @@
 
             window.toggleSpeedoDrag = function () {
                 if (cfg.style === 'off') return;
-                layer.classList.toggle('is-dragging');
+                const dragging = !layer.classList.contains('is-dragging');
+                layer.classList.toggle('is-dragging', dragging);
+                layer.classList.toggle('speedo-settings-preview', dragging);
                 updateSettingsUI();
             };
 
